@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizUp - Authentifié</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #6b7280;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .user-info {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .user-info strong {
+            color: #374151;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🎯</div>
+        <h1>QuizUp</h1>
+
+        <div th:if="${authenticated}">
+            <div class="success">
+                ✓ Authentification réussie !
+            </div>
+            <p>Vous êtes maintenant connecté au serveur d'autorisation QuizUp.</p>
+            <div class="user-info">
+                <strong>ID utilisateur :</strong> <span th:text="${id}">-</span>
+            </div>
+            <div class="user-info">
+                <strong>Email utilisateur :</strong> <span th:text="${email}">-</span>
+            </div>
+            <p style="font-size: 0.9rem; color: #9ca3af;">
+                Vous pouvez maintenant utiliser l'application QuizUp avec votre compte.
+            </p>
+            <form method="post" th:action="@{/logout}" style="display: inline;">
+                <button type="submit" class="btn" style="border: none; cursor: pointer;">Se déconnecter</button>
+            </form>
+        </div>
+
+        <div th:unless="${authenticated}">
+            <p>Serveur d'autorisation QuizUp</p>
+            <a href="/login" class="btn">Se connecter</a>
+        </div>
+    </div>
+</body>
+</html>
