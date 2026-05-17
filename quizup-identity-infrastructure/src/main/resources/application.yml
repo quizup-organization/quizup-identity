@@ -1,14 +1,8 @@
-server:
-  port: 8085
-
 spring:
   application:
     name: quizup-identity
-  
-  datasource:
-    url: jdbc:postgresql://localhost:5432/quizup_identity
-    username: postgres
-    password: postgres
+  profiles:
+    default: local
 
   flyway:
     locations: classpath:db/migration/identity
@@ -42,7 +36,7 @@ authentication:
       # Client credentials pour communication M2M (machine-to-machine)
       server:
         client-id: server
-        client-secret: server-secret
+        client-secret: ${QUIZUP_IDENTITY_SERVER_CLIENT_SECRET:server-secret}
         authentication-methods:
           - client_secret_basic
         grant-types:
@@ -136,7 +130,7 @@ authentication:
       # Client administration avec consent
       administration:
         client-id: administration
-        client-secret: admin-secret
+        client-secret: ${QUIZUP_IDENTITY_ADMIN_CLIENT_SECRET:admin-secret}
         authentication-methods:
           - client_secret_basic
         grant-types:
@@ -156,6 +150,6 @@ authentication:
 
 logging:
   level:
-    io.github.quizup: DEBUG
+    io.github.quizup: ${QUIZUP_LOG_LEVEL:INFO}
 
 
