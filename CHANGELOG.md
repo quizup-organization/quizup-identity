@@ -1,3 +1,9 @@
+## [1.0.2](https://github.com/quizup-organization/quizup-identity/compare/v1.0.1...v1.0.2) (2026-05-17)
+
+### Bug Fixes
+
+* profiles yml ([e87b1c4](https://github.com/quizup-organization/quizup-identity/commit/e87b1c468218bdc99585f84eeb05096661caf4e2))
+
 ## [1.0.1](https://github.com/quizup-organization/quizup-identity/compare/v1.0.0...v1.0.1) (2026-05-16)
 
 ### Bug Fixes
