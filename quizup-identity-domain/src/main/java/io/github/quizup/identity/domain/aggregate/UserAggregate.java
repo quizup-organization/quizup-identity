@@ -81,6 +81,7 @@ public class UserAggregate {
         this.userId = event.userId();
         this.email = event.email();
         this.password = event.password();
+        this.name = event.name();
 
         if (event.provider() != null) {
             this.linkedSocialAccounts.add(event.provider());

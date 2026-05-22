@@ -12,6 +12,7 @@ public final class UserResponseMapper {
         return new UserResponse(
                 user.userId(),
                 user.email(),
+                user.name(),
                 user.linkedSocialAccounts(),
                 user.createdAt()
         );

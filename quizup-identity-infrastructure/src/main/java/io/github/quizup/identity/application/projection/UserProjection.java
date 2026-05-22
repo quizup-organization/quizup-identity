@@ -43,6 +43,7 @@ public class UserProjection {
                 event.userId(),
                 event.email(),
                 event.password(),
+                event.name(),
                 linkedAccounts,
                 event.createdAt()
         );
