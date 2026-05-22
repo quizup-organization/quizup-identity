@@ -14,6 +14,7 @@ public interface UserEvent {
             String userId,
             String email,
             String password,
+            String name,
             SocialProvider provider,
             Instant createdAt
     ) implements UserEvent {
