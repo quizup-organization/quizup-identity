@@ -1,8 +1,9 @@
 spring:
-  application:
-    name: quizup-identity
   profiles:
     default: local
+
+  application:
+    name: quizup-identity
 
   flyway:
     locations: classpath:db/migration/identity
@@ -18,9 +19,6 @@ spring:
               - openid
               - profile
               - email
-axon:
-  distributed:
-    enabled: true
 
 microservice:
   resource-server:
