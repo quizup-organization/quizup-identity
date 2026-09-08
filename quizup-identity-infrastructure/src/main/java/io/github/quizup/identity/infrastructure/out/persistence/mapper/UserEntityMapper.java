@@ -2,9 +2,6 @@ package io.github.quizup.identity.infrastructure.out.persistence.mapper;
 
 import io.github.quizup.identity.domain.model.User;
 import io.github.quizup.identity.infrastructure.out.persistence.entity.UserEntity;
-import org.springframework.stereotype.Component;
-
-import java.util.HashSet;
 
 /**
  * Mapper infrastructure - Convertit entre UserEntity (JPA) et User (domaine).
@@ -21,6 +18,7 @@ public final class UserEntityMapper {
                 entity.getUserId(),
                 entity.getEmail(),
                 entity.getPassword(),
+                entity.getName(),
                 entity.getLinkedSocialAccounts(),
                 entity.getCreatedAt()
         );
@@ -35,6 +33,7 @@ public final class UserEntityMapper {
         userEntity.setUserId(user.userId());
         userEntity.setEmail(user.email());
         userEntity.setPassword(user.password());
+        userEntity.setName(user.name());
         userEntity.setLinkedSocialAccounts(user.linkedSocialAccounts());
         userEntity.setCreatedAt(user.createdAt());
         return userEntity;

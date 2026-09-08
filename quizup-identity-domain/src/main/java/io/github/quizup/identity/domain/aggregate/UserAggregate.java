@@ -3,6 +3,7 @@ package io.github.quizup.identity.domain.aggregate;
 import io.github.quizup.identity.domain.command.UserCommand;
 import io.github.quizup.identity.domain.event.UserEvent;
 import io.github.quizup.identity.domain.exception.UserProblems;
+import io.github.quizup.identity.domain.model.NameGenerator;
 import io.github.quizup.identity.domain.model.SocialProvider;
 import io.github.quizup.identity.domain.port.out.PasswordEncoderPort;
 import io.github.quizup.identity.domain.port.out.UserRepositoryPort;
@@ -30,6 +31,8 @@ public class UserAggregate {
     private String email;
     private String password;
 
+    private String name;
+
     private Set<SocialProvider> linkedSocialAccounts;
 
     // Constructeur par défaut requis par Axon
@@ -48,6 +51,7 @@ public class UserAggregate {
                         command.userId(),
                         command.email(),
                         passwordEncoderPort.encode(command.password()),
+                        NameGenerator.generate(),
                         null,
                         Instant.now()
                 )
@@ -64,6 +68,7 @@ public class UserAggregate {
                         command.userId(),
                         command.email(),
                         null,
+                        NameGenerator.generate(),
                         command.provider(),
                         Instant.now()
                 )
@@ -76,12 +81,12 @@ public class UserAggregate {
         this.userId = event.userId();
         this.email = event.email();
         this.password = event.password();
+        this.name = event.name();
 
         if (event.provider() != null) {
             this.linkedSocialAccounts.add(event.provider());
         }
     }
-
     private void validateProvider(String userId, SocialProvider provider) {
         if (provider == null) {
             throw new UserProblems.SocialProviderMissingProblem(userId);

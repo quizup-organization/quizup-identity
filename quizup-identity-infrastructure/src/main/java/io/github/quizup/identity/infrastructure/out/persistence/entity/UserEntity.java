@@ -19,7 +19,8 @@ import java.util.Set;
 @Getter
 @Entity
 @Table(name = "user_entry", indexes = {
-    @Index(name = "idx_user_entry_email", columnList = "email")
+    @Index(name = "idx_user_entry_email", columnList = "email"),
+    @Index(name = "idx_user_entry_name", columnList = "name")
 })
 public class UserEntity {
 
@@ -34,6 +35,10 @@ public class UserEntity {
 
     @Column(name = "password", length = 255)
     private String password;
+
+    @Column(name = "name", length = 255, nullable = false)
+    @Searchable(type = FieldType.STRING)
+    private String name;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_social_providers_entry", joinColumns = @JoinColumn(name = "user_id"))

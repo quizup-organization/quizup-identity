@@ -13,6 +13,7 @@ import java.util.Set;
 public record UserResponse(
     String userId,
     String email,
+    String name,
     Set<SocialProvider> linkedSocialAccounts,
     Instant createdAt
 ) implements Serializable {

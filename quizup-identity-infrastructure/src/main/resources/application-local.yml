@@ -5,12 +5,16 @@ spring:
   config:
     activate:
       on-profile: local
-
+  jpa:
+    hibernate:
+      ddl-auto: update
   datasource:
     url: jdbc:postgresql://localhost:5432/quizup_identity
     username: postgres
     password: postgres
-
+app:
+  seed-data:
+    enabled: true
 logging:
   level:
     io.github.quizup: DEBUG

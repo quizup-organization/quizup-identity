@@ -7,11 +7,15 @@ CREATE TABLE IF NOT EXISTS user_entry (
     user_id VARCHAR(255) PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL
 );
 
 -- Index pour recherche par email
 CREATE INDEX idx_user_entry_email ON user_entry(email);
+
+-- Index pour recherche par nom de joueur
+CREATE INDEX idx_user_entry_name ON user_entry(name);
 
 -- Table pour stocker les providers sociaux liés (@ElementCollection)
 CREATE TABLE IF NOT EXISTS user_social_providers_entry (
@@ -30,6 +34,7 @@ COMMENT ON TABLE user_entry IS 'Table des utilisateurs - projection read-only mi
 COMMENT ON COLUMN user_entry.user_id IS 'Identifiant unique de l''utilisateur (UUID)';
 COMMENT ON COLUMN user_entry.email IS 'Email unique de l''utilisateur';
 COMMENT ON COLUMN user_entry.password IS 'Hash du mot de passe (null pour OAuth2/social)';
+COMMENT ON COLUMN user_entry.name IS 'Nom public auto-genere du joueur';
 COMMENT ON COLUMN user_entry.created_at IS 'Date de création du compte';
 
 COMMENT ON TABLE user_social_providers_entry IS 'Providers sociaux liés au compte utilisateur (Google, Facebook, etc.)';

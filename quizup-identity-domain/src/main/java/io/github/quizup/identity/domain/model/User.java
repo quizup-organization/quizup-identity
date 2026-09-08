@@ -12,6 +12,7 @@ public record User(
         String userId,
         String email,
         String password,
+        String name,
         Set<SocialProvider> linkedSocialAccounts,
         Instant createdAt
 ) {
