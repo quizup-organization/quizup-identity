@@ -1,6 +1,6 @@
 package io.github.quizup.identity.application.handler.query;
 
-import io.github.quizup.common.domain.model.search.PageResult;
+import io.github.quizup.microservice.core.domain.model.search.PageResult;
 import io.github.quizup.identity.domain.exception.UserProblems;
 import io.github.quizup.identity.domain.model.User;
 import io.github.quizup.identity.domain.port.out.UserRepositoryPort;

@@ -1,6 +1,6 @@
 package io.github.quizup.identity.domain.exception;
 
-import io.github.quizup.common.domain.exception.ProblemCategory;
+import io.github.quizup.microservice.core.domain.exception.ProblemCategory;
 
 import java.util.Map;
 

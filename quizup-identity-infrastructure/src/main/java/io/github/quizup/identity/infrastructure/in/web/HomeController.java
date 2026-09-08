@@ -1,6 +1,6 @@
 package io.github.quizup.identity.infrastructure.in.web;
 
-import io.github.quizup.common.domain.model.security.QuizUpPrincipal;
+import io.github.quizup.microservice.core.domain.model.security.QuizUpPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

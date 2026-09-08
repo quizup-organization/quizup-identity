@@ -1,7 +1,7 @@
 package io.github.quizup.identity.infrastructure.security;
 
-import io.github.quizup.common.domain.constant.SecurityConstants;
-import io.github.quizup.common.domain.model.security.QuizUpPrincipal;
+import io.github.quizup.microservice.core.domain.constant.SecurityConstants;
+import io.github.quizup.microservice.core.domain.model.security.QuizUpPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;

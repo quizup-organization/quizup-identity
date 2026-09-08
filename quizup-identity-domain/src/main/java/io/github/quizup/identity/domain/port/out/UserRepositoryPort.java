@@ -1,7 +1,7 @@
 package io.github.quizup.identity.domain.port.out;
 
-import io.github.quizup.common.domain.model.search.PageResult;
-import io.github.quizup.common.domain.model.search.SearchCriteria;
+import io.github.quizup.microservice.core.domain.model.search.PageResult;
+import io.github.quizup.microservice.core.domain.model.search.SearchCriteria;
 import io.github.quizup.identity.domain.model.User;
 
 import java.util.Optional;

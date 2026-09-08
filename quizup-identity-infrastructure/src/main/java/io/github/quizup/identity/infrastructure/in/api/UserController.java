@@ -1,9 +1,9 @@
 package io.github.quizup.identity.infrastructure.in.api;
 
-import io.github.quizup.common.domain.model.search.SearchCriteria;
-import io.github.quizup.common.infrastructure.in.api.request.SearchRequest;
-import io.github.quizup.common.infrastructure.in.api.response.PageResponse;
-import io.github.quizup.common.infrastructure.mapper.SearchRequestMapper;
+import io.github.quizup.microservice.core.domain.model.search.SearchCriteria;
+import io.github.quizup.microservice.core.infrastructure.in.api.request.SearchRequest;
+import io.github.quizup.microservice.core.infrastructure.in.api.response.PageResponse;
+import io.github.quizup.microservice.core.infrastructure.mapper.SearchRequestMapper;
 import io.github.quizup.identity.domain.port.in.GetUserUseCase;
 import io.github.quizup.identity.domain.port.in.SearchUserUseCase;
 import io.github.quizup.identity.infrastructure.in.api.mapper.UserResponseMapper;

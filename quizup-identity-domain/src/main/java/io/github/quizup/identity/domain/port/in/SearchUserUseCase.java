@@ -1,6 +1,6 @@
 package io.github.quizup.identity.domain.port.in;
 
-import io.github.quizup.common.domain.model.search.*;
+import io.github.quizup.microservice.core.domain.model.search.*;
 import io.github.quizup.identity.domain.model.User;
 import io.github.quizup.identity.domain.query.UserQuery;
 

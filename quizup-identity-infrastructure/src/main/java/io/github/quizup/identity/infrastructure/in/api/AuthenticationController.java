@@ -1,7 +1,7 @@
 package io.github.quizup.identity.infrastructure.in.api;
 
-import io.github.quizup.common.domain.model.security.QuizUpPrincipal;
-import io.github.quizup.microservice.infrastructure.security.SecurityHelper;
+import io.github.quizup.microservice.core.domain.model.security.QuizUpPrincipal;
+import io.github.quizup.microservice.security.SecurityHelper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

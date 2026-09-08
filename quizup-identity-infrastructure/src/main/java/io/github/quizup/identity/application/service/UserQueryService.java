@@ -1,7 +1,7 @@
 package io.github.quizup.identity.application.service;
 
-import io.github.quizup.common.domain.model.search.PageResult;
-import io.github.quizup.common.infrastructure.axon.PageResponseTypes;
+import io.github.quizup.microservice.core.domain.model.search.PageResult;
+import io.github.quizup.microservice.core.infrastructure.axon.PageResponseTypes;
 import io.github.quizup.identity.domain.exception.UserProblems;
 import io.github.quizup.identity.domain.model.User;
 import io.github.quizup.identity.domain.port.in.CheckUserUseCase;

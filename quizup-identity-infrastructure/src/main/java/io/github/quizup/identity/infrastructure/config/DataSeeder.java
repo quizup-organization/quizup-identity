@@ -1,6 +1,6 @@
 package io.github.quizup.identity.infrastructure.config;
 
-import io.github.quizup.common.domain.constant.QuizUpConstants;
+import io.github.quizup.microservice.core.domain.constant.QuizUpConstants;
 import io.github.quizup.identity.domain.command.UserCommand;
 import io.github.quizup.identity.domain.port.in.CheckUserUseCase;
 import io.github.quizup.identity.domain.port.in.RegisterUserUseCase;

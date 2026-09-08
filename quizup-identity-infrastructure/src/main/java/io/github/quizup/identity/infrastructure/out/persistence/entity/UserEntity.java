@@ -1,7 +1,7 @@
 package io.github.quizup.identity.infrastructure.out.persistence.entity;
 
-import io.github.quizup.common.domain.model.search.FieldType;
-import io.github.quizup.common.domain.model.search.Searchable;
+import io.github.quizup.microservice.core.domain.model.search.FieldType;
+import io.github.quizup.microservice.core.domain.model.search.Searchable;
 import io.github.quizup.identity.domain.model.SocialProvider;
 import jakarta.persistence.*;
 import lombok.Getter;

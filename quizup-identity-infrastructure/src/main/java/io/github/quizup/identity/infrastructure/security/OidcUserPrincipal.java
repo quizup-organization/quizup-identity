@@ -6,7 +6,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import io.github.quizup.common.domain.model.security.QuizUpPrincipal;
+import io.github.quizup.microservice.core.domain.model.security.QuizUpPrincipal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
