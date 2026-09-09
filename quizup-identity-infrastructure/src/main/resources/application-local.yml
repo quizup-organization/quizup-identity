@@ -9,6 +9,22 @@ spring:
   kafka:
     bootstrap-servers: localhost:9092
 
+  cloud:
+    discovery:
+      client:
+        simple:
+          instances:
+            quizup-identity:
+              - uri: http://localhost:8085
+            quizup-theme:
+              - uri: http://localhost:8086
+            quizup-game:
+              - uri: http://localhost:8082
+            quizup-social:
+              - uri: http://localhost:8087
+            quizup-matchmaking:
+              - uri: http://localhost:8090
+
   jpa:
     hibernate:
       ddl-auto: update
