@@ -1,0 +1,39 @@
+server:
+  port: 8080
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: jdbc:postgresql://${QUIZUP_DB_HOST:postgres}:${QUIZUP_DB_PORT:5432}/${QUIZUP_DB_NAME:quizup_identity}
+    username: ${QUIZUP_DB_USERNAME}
+    password: ${QUIZUP_DB_PASSWORD}
+
+  kafka:
+    bootstrap-servers: ${QUIZUP_KAFKA_HOST:kafka}:${QUIZUP_KAFKA_PORT:9092}
+
+app:
+  authorization-server:
+    issuer: ${QUIZUP_IDENTITY_ISSUER:https://identity.quizup.local}
+  security:
+    login-page-uri: ${QUIZUP_APP_LOGIN_URI:https://app.quizup.local/login}
+    oauth2:
+      success-redirect-uri: ${QUIZUP_APP_OAUTH2_SUCCESS_URI:https://app.quizup.local/login?social=success}
+      failure-redirect-uri: ${QUIZUP_APP_OAUTH2_FAILURE_URI:https://app.quizup.local/login?error}
+    cors:
+      allowed-origins: ${QUIZUP_CORS_ALLOWED_ORIGINS:https://app.quizup.local}
+    session:
+      cookie-secure: ${QUIZUP_SESSION_COOKIE_SECURE:true}
+      cookie-same-site: Lax
+
+microservice:
+  swagger:
+    oauth2:
+      authorization-server-url: ${QUIZUP_IDENTITY_ISSUER:https://identity.quizup.local}
+
+logging:
+  level:
+    io.github.quizup: INFO
+

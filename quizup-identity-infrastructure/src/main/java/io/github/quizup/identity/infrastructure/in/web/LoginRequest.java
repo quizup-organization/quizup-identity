@@ -1,0 +1,10 @@
+package io.github.quizup.identity.infrastructure.in.web;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
+public record LoginRequest(
+        @NotBlank @Email String email,
+        @NotBlank String password
+) {
+}

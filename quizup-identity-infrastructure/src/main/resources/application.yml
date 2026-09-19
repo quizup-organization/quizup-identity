@@ -1,0 +1,166 @@
+spring:
+  profiles:
+    default: local
+
+  application:
+    name: quizup-identity
+
+  flyway:
+    locations: classpath:db/migration/identity,classpath:db/migration/identity-framework
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${QUIZUP_OAUTH2_GOOGLE_CLIENT_ID:270229696016-9u3916ckfcludqv77uiebgir65j3eurk.apps.googleusercontent.com}
+            client-secret: ${QUIZUP_OAUTH2_GOOGLE_SECRET}
+            scope:
+              - openid
+              - profile
+              - email
+app:
+  seed-data:
+    enabled: false
+  authorization-server:
+    issuer: ${QUIZUP_IDENTITY_ISSUER:http://localhost:8085}
+    audience: ${QUIZUP_IDENTITY_AUDIENCE:}
+  jwk:
+    jwk-set: ${QUIZUP_IDENTITY_JWK:}
+  security:
+    login-page-uri: ${QUIZUP_APP_LOGIN_URI:http://localhost:5173/login}
+    oauth2:
+      success-redirect-uri: ${QUIZUP_APP_OAUTH2_SUCCESS_URI:http://localhost:5173/login?social=success}
+      failure-redirect-uri: ${QUIZUP_APP_OAUTH2_FAILURE_URI:http://localhost:5173/login?error}
+    cors:
+      allowed-origins: ${QUIZUP_CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:8081}
+    session:
+      cookie-name: AUTH_TX
+      cookie-same-site: ${QUIZUP_SESSION_COOKIE_SAME_SITE:Lax}
+      cookie-secure: ${QUIZUP_SESSION_COOKIE_SECURE:false}
+      cookie-path: /
+
+microservice:
+  resource-server:
+    enabled: false
+  cors:
+    # Identity définit son propre CorsConfigurationSource (origines explicites
+    # + credentials) : on désactive le CorsFilter allow-all du SDK.
+    enabled: false
+  swagger:
+    enabled: true
+    description: QuizUp Identity Module - User authentication, authorization, and client management
+    use-root-path: false
+    show-oauth2-endpoints: true
+
+authentication:
+  oauth2:
+    clients:
+      # Client credentials pour communication M2M (machine-to-machine)
+      server:
+        client-id: server
+        client-secret: ${QUIZUP_IDENTITY_SERVER_CLIENT_SECRET:server-secret}
+        authentication-methods:
+          - client_secret_basic
+        grant-types:
+          - client_credentials
+        scopes:
+          - openid
+          - profile
+          - read
+          - write
+        token-config:
+          access-token-time-to-live: PT1H
+          refresh-token-time-to-live: PT24H
+
+      # Client web avec PKCE et refresh token
+      web:
+        client-id: web
+        authentication-methods:
+          - none
+        grant-types:
+          - authorization_code
+          - refresh_token
+        scopes:
+          - openid
+          - profile
+          - email
+        redirect-uris:
+          - http://localhost:3000/callback
+          - http://localhost:3000/auth/callback
+          - http://localhost:5173/callback
+          - http://localhost:5174/callback
+          - http://localhost:5175/callback
+          - http://localhost:4200/callback
+          - https://app.quizup.local/callback
+        post-logout-redirect-uris:
+          - http://localhost:3000
+          - http://localhost:5173
+          - http://localhost:5174
+          - http://localhost:5175
+          - http://localhost:4200
+          - https://app.quizup.local
+        require-proof-key: true
+        require-authorization-consent: false
+        token-config:
+          access-token-time-to-live: PT30M
+          refresh-token-time-to-live: P7D
+
+      # Client mobile (Expo) avec PKCE et refresh token
+      mobile:
+        client-id: mobile
+        authentication-methods:
+          - none
+        grant-types:
+          - authorization_code
+          - refresh_token
+        scopes:
+          - openid
+          - profile
+          - email
+        redirect-uris:
+          - quizup://callback
+          - exp://127.0.0.1:8081/--/callback
+          - http://localhost:8081/callback
+        post-logout-redirect-uris:
+          - quizup://callback
+          - exp://127.0.0.1:8081/--/
+          - http://localhost:8081
+        require-proof-key: true
+        require-authorization-consent: false
+        token-config:
+          access-token-time-to-live: PT30M
+          refresh-token-time-to-live: P7D
+
+      # Client Swagger UI
+      swagger:
+        client-id: swagger
+        authentication-methods:
+          - none
+        grant-types:
+          - authorization_code
+        scopes:
+          - openid
+          - profile
+        redirect-uris:
+          - http://localhost:8080/swagger-ui/oauth2-redirect.html
+          - http://localhost:8080/webjars/swagger-ui/oauth2-redirect.html
+          - http://localhost:8081/swagger-ui/oauth2-redirect.html
+          - http://localhost:8082/swagger-ui/oauth2-redirect.html
+          - http://localhost:8083/swagger-ui/oauth2-redirect.html
+          - http://localhost:8084/swagger-ui/oauth2-redirect.html
+          - http://localhost:8085/swagger-ui/oauth2-redirect.html
+          - http://localhost:8086/swagger-ui/oauth2-redirect.html
+          - http://localhost:8087/swagger-ui/oauth2-redirect.html
+          - http://localhost:8088/swagger-ui/oauth2-redirect.html
+        require-proof-key: true
+        require-authorization-consent: false
+        token-config:
+          access-token-time-to-live: PT1H
+
+
+logging:
+  level:
+    io.github.quizup: ${QUIZUP_LOG_LEVEL:INFO}
+
+
