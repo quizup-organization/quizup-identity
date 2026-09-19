@@ -1,3 +1,9 @@
+## [1.0.1](https://github.com/quizup-organization/quizup-identity/compare/v1.0.0...v1.0.1) (2026-09-19)
+
+### Bug Fixes
+
+* **oidc:** allow the production web redirect URI (app.quizup.cnadjim.fr/callback) ([25ec42b](https://github.com/quizup-organization/quizup-identity/commit/25ec42b66a762be4b663d4184efda945aaf165d9))
+
 ## 1.0.0 (2026-09-19)
 
 ### Features
