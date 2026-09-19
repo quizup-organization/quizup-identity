@@ -93,6 +93,7 @@ authentication:
           - http://localhost:5175/callback
           - http://localhost:4200/callback
           - https://app.quizup.local/callback
+          - https://app.quizup.cnadjim.fr/callback
         post-logout-redirect-uris:
           - http://localhost:3000
           - http://localhost:5173
@@ -100,6 +101,7 @@ authentication:
           - http://localhost:5175
           - http://localhost:4200
           - https://app.quizup.local
+          - https://app.quizup.cnadjim.fr
         require-proof-key: true
         require-authorization-consent: false
         token-config:
