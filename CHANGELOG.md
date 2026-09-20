@@ -1,3 +1,9 @@
+## [1.5.0](https://github.com/quizup-organization/quizup-identity/compare/v1.4.3...v1.5.0) (2026-09-20)
+
+### Features
+
+* **auth:** replace password with email OTP and email-based admin role ([9699400](https://github.com/quizup-organization/quizup-identity/commit/9699400e0a3607e4160fe74343686ed0228c27de))
+
 ## [1.4.3](https://github.com/quizup-organization/quizup-identity/compare/v1.4.2...v1.4.3) (2026-09-20)
 
 ### Bug Fixes
