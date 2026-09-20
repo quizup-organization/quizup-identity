@@ -1,3 +1,9 @@
+## [1.5.3](https://github.com/quizup-organization/quizup-identity/compare/v1.5.2...v1.5.3) (2026-09-20)
+
+### Bug Fixes
+
+* **deps:** bump quizup-sdk to 2.1.1 ([4216592](https://github.com/quizup-organization/quizup-identity/commit/42165925f794ba268d5fa5e718267345e7f07f01))
+
 ## [1.5.2](https://github.com/quizup-organization/quizup-identity/compare/v1.5.1...v1.5.2) (2026-09-20)
 
 ### Bug Fixes
