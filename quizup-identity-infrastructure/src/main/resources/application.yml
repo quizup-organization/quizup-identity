@@ -181,6 +181,9 @@ authentication:
           - http://localhost:8086/swagger-ui/oauth2-redirect.html
           - http://localhost:8087/swagger-ui/oauth2-redirect.html
           - http://localhost:8088/swagger-ui/oauth2-redirect.html
+          # Swagger UI du gateway en prod (Swagger UI agrégé derrière api.quizup.cnadjim.fr).
+          - https://api.quizup.cnadjim.fr/swagger-ui/oauth2-redirect.html
+          - https://api.quizup.cnadjim.fr/webjars/swagger-ui/oauth2-redirect.html
         require-proof-key: true
         require-authorization-consent: false
         token-config:
