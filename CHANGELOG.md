@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/quizup-organization/quizup-identity/compare/v1.0.1...v1.1.0) (2026-09-20)
+
+### Features
+
+* **observability:** add Grafana OIDC client and consume quizup-sdk 1.1.0 ([806aff6](https://github.com/quizup-organization/quizup-identity/commit/806aff6a5e588d4dd9ac3d7d511d0d8efca4aa3a))
+
 ## [1.0.1](https://github.com/quizup-organization/quizup-identity/compare/v1.0.0...v1.0.1) (2026-09-19)
 
 ### Bug Fixes
