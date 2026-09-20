@@ -1,3 +1,9 @@
+## [1.4.1](https://github.com/quizup-organization/quizup-identity/compare/v1.4.0...v1.4.1) (2026-09-20)
+
+### Bug Fixes
+
+* **swagger:** allow the gateway Swagger UI redirect URIs ([942e9e7](https://github.com/quizup-organization/quizup-identity/commit/942e9e717d36c6bfd551e5c2ed0724401c1617a5))
+
 ## [1.4.0](https://github.com/quizup-organization/quizup-identity/compare/v1.3.0...v1.4.0) (2026-09-20)
 
 ### Features
