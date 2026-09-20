@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/quizup-organization/quizup-identity/compare/v1.2.0...v1.3.0) (2026-09-20)
+
+### Features
+
+* **observability:** consume quizup-sdk 1.3.0 (WebSocket metrics) ([a8bdd1e](https://github.com/quizup-organization/quizup-identity/commit/a8bdd1e725635544ce63e924418eb2ac4ed2c9cc))
+
 ## [1.2.0](https://github.com/quizup-organization/quizup-identity/compare/v1.1.0...v1.2.0) (2026-09-20)
 
 ### Features
