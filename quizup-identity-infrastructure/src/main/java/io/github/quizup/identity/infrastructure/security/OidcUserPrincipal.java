@@ -2,14 +2,12 @@ package io.github.quizup.identity.infrastructure.security;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import io.github.quizup.microservice.core.domain.model.security.QuizUpPrincipal;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,7 +36,7 @@ public class OidcUserPrincipal implements OidcUser, QuizUpPrincipal, Serializabl
         this.idToken = idToken;
         this.userInfo = userInfo;
         this.attributes = attributes;
-        this.authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        this.authorities = Roles.forUser(userId);
     }
 
     @Override

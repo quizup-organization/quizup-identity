@@ -72,6 +72,8 @@ En cas de non-authentification sur `/oauth2/authorize` : `302` vers la SPA
 
 **JWT** : `JwtTokenCustomizer` émet `sub`, `email`, `user_email`, `user_id`, `roles`
 et `aud` (si `app.authorization-server.audience` renseigné) — **aucun claim `name`**.
+Les rôles viennent de `Roles.forUser(userId)` : `ROLE_USER` pour tous, plus `ROLE_ADMIN` pour
+l'utilisateur `QuizUpConstants.ADMIN_USER_ID` (consommé en aval, ex. `role_attribute_path` Grafana).
 
 ---
 

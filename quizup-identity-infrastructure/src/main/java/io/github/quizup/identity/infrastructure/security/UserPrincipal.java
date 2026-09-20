@@ -3,13 +3,11 @@ package io.github.quizup.identity.infrastructure.security;
 import io.github.quizup.microservice.core.domain.model.security.QuizUpPrincipal;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,7 +33,7 @@ public class UserPrincipal implements UserDetails, OAuth2User, QuizUpPrincipal, 
         this.email = email;
         this.password = password;
         this.attributes = Map.of();
-        this.authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        this.authorities = Roles.forUser(userId);
     }
 
     @Override
