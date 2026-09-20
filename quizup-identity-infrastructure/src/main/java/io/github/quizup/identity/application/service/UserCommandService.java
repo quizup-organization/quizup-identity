@@ -21,7 +21,7 @@ public class UserCommandService implements RegisterUserUseCase, LinkSocialProvid
     }
 
     @Override
-    public CompletableFuture<String> registerWithPassword(UserCommand.RegisterUserWithPasswordCommand command) {
+    public CompletableFuture<String> registerUser(UserCommand.RegisterUserCommand command) {
         return commandGateway.send(command);
     }
 

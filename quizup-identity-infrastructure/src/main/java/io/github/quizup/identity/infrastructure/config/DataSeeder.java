@@ -13,8 +13,9 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.CompletionException;
 
 /**
- * DataSeeder - Initialise les données de test au démarrage.
+ * DataSeeder - Initialise le compte système au démarrage.
  * <p>
+ * Le compte système (admin + bot) ne possède aucun credential : il ne peut pas se connecter.
  * Idempotent y compris vis-à-vis de l'event store : si l'agrégat existe déjà
  * (mais que la projection read-model n'est pas encore visible), la tentative de
  * création échoue sur {@link AggregateStreamCreationException} et est ignorée.
@@ -42,30 +43,31 @@ public class DataSeeder implements CommandLineRunner {
             return;
         }
 
-        logger.info("=== Starting User Data Seeding ===");
+        logger.info("=== Starting System User Seeding ===");
 
-        seedUser(QuizUpConstants.ADMIN_USER_ID, QuizUpConstants.ADMIN_USER_EMAIL, "admin123", "Admin");
-        seedUser(QuizUpConstants.BOT_USER_ID, QuizUpConstants.BOT_USER_EMAIL, "bot1234", "Bot");
+        seedSystemUser();
 
-        logger.info("=== User Data Seeding Completed ===");
+        logger.info("=== System User Seeding Completed ===");
     }
 
-    private void seedUser(String userId, String email, String password, String label) {
+    private void seedSystemUser() {
+        String userId = QuizUpConstants.SYSTEM_USER_ID;
+
         if (checkUserUseCase.existsById(userId).join()) {
-            logger.info("{} user already exists, skipping creation", label);
+            logger.info("System user already exists, skipping creation");
             return;
         }
 
-        logger.info("Creating {} user: {}", label, email);
+        logger.info("Creating system user: {}", QuizUpConstants.SYSTEM_USER_EMAIL);
 
         try {
-            registerUserUseCase.registerWithPassword(userId, email, password).join();
-            logger.info("✓ {} user created: {}", label, userId);
+            registerUserUseCase.registerUser(userId, QuizUpConstants.SYSTEM_USER_EMAIL).join();
+            logger.info("✓ System user created: {}", userId);
         } catch (CompletionException exception) {
             if (isAggregateAlreadyExists(exception)) {
-                logger.info("{} user already exists in the event store, skipping creation", label);
+                logger.info("System user already exists in the event store, skipping creation");
             } else {
-                logger.error("Failed to seed {} user", label, exception);
+                logger.error("Failed to seed system user", exception);
             }
         }
     }

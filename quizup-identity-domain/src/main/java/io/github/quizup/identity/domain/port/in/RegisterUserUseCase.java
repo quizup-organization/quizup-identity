@@ -12,14 +12,18 @@ import java.util.concurrent.CompletableFuture;
 public interface RegisterUserUseCase {
 
     /**
-     * Enregistre un nouvel utilisateur avec email et mot de passe.
+     * Enregistre un nouvel utilisateur sans credential (passwordless / compte système).
      */
-    CompletableFuture<String> registerWithPassword(UserCommand.RegisterUserWithPasswordCommand command);
+    CompletableFuture<String> registerUser(UserCommand.RegisterUserCommand command);
 
     /**
      * Enregistre un nouvel utilisateur via un provider social (OAuth2).
      */
     CompletableFuture<String> registerWithSocial(UserCommand.RegisterUserWithSocialCommand command);
+
+    default CompletableFuture<String> registerUser(String userId, String email) {
+        return registerUser(new UserCommand.RegisterUserCommand(userId, email));
+    }
 
     default CompletableFuture<String> registerWithSocial(String userId, String email, SocialProvider socialProvider) {
         return registerWithSocial(
@@ -30,15 +34,4 @@ public interface RegisterUserUseCase {
                 )
         );
     }
-
-    default CompletableFuture<String> registerWithPassword(String userId, String email, String password) {
-        return registerWithPassword(
-                new UserCommand.RegisterUserWithPasswordCommand(
-                        userId,
-                        email,
-                        password
-                )
-        );
-    }
 }
-

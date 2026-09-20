@@ -5,9 +5,11 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -34,6 +36,7 @@ abstract class OidcUserPrincipalMixin {
             @JsonProperty("email") String email,
             @JsonProperty("idToken") OidcIdToken idToken,
             @JsonProperty("userInfo") OidcUserInfo userInfo,
-            @JsonProperty("attributes") Map<String, Object> attributes) {
+            @JsonProperty("attributes") Map<String, Object> attributes,
+            @JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities) {
     }
 }

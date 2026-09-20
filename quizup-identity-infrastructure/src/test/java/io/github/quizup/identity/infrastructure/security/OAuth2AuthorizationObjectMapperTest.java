@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
@@ -26,12 +25,10 @@ class OAuth2AuthorizationObjectMapperTest {
     private final ObjectMapper objectMapper = OAuth2AuthorizationObjectMapper.create();
 
     @Test
-    void userPrincipal_roundTrips_withoutSerializingPassword() throws Exception {
-        UserPrincipal principal = new UserPrincipal("user-1", "user@quizup.dev", "$2a$secretHash");
+    void userPrincipal_roundTrips() throws Exception {
+        UserPrincipal principal = new UserPrincipal("user-1", "user@quizup.dev", authorities());
 
         String json = objectMapper.writeValueAsString(principal);
-
-        assertFalse(json.contains("$2a$secretHash"), "le hash du mot de passe ne doit pas être sérialisé");
 
         Object restored = objectMapper.readValue(json, Object.class);
         UserPrincipal user = assertInstanceOf(UserPrincipal.class, restored);
@@ -42,7 +39,7 @@ class OAuth2AuthorizationObjectMapperTest {
     @Test
     void oidcUserPrincipal_roundTrips_withRealisticClaims() throws Exception {
         OidcUserPrincipal principal = new OidcUserPrincipal(
-                "user-2", "social@quizup.dev", idToken("google-sub-2", "social@quizup.dev"), userInfo("user-2", "social@quizup.dev"), Map.of());
+                "user-2", "social@quizup.dev", idToken("google-sub-2", "social@quizup.dev"), userInfo("user-2", "social@quizup.dev"), Map.of(), authorities());
 
         Object restored = roundTrip(principal);
 
@@ -53,7 +50,7 @@ class OAuth2AuthorizationObjectMapperTest {
 
     @Test
     void usernamePasswordAuthentication_roundTrips() throws Exception {
-        UserPrincipal principal = new UserPrincipal("user-3", "local@quizup.dev", "$2a$secretHash");
+        UserPrincipal principal = new UserPrincipal("user-3", "local@quizup.dev", authorities());
         UsernamePasswordAuthenticationToken authentication =
                 UsernamePasswordAuthenticationToken.authenticated(principal, null, principal.getAuthorities());
 
@@ -69,7 +66,7 @@ class OAuth2AuthorizationObjectMapperTest {
     @Test
     void oauth2AuthenticationToken_roundTrips_withRealisticClaims() throws Exception {
         OidcUserPrincipal principal = new OidcUserPrincipal(
-                "user-4", "social2@quizup.dev", idToken("google-sub-4", "social2@quizup.dev"), userInfo("user-4", "social2@quizup.dev"), Map.of());
+                "user-4", "social2@quizup.dev", idToken("google-sub-4", "social2@quizup.dev"), userInfo("user-4", "social2@quizup.dev"), Map.of(), authorities());
         OAuth2AuthenticationToken authentication =
                 new OAuth2AuthenticationToken(principal, principal.getAuthorities(), "google");
 
@@ -78,6 +75,10 @@ class OAuth2AuthorizationObjectMapperTest {
         OAuth2AuthenticationToken token = assertInstanceOf(OAuth2AuthenticationToken.class, restored);
         OidcUserPrincipal user = assertInstanceOf(OidcUserPrincipal.class, token.getPrincipal());
         assertEquals("user-4", user.getUserId());
+    }
+
+    private java.util.List<org.springframework.security.core.GrantedAuthority> authorities() {
+        return java.util.List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_USER"));
     }
 
     private OidcIdToken idToken(String subject, String email) {

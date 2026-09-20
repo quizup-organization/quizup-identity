@@ -9,11 +9,14 @@ public interface UserEvent {
 
     /**
      * Événement émis lors de l'enregistrement d'un utilisateur.
+     *
+     * <p>Le compte ne porte plus de mot de passe : l'authentification repose sur un code
+     * à usage unique (OTP email) ou sur un provider social. {@code provider} est non nul
+     * uniquement pour un enregistrement social.</p>
      */
     record UserRegisteredEvent(
             String userId,
             String email,
-            String password,
             SocialProvider provider,
             Instant createdAt
     ) implements UserEvent {

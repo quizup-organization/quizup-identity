@@ -32,9 +32,6 @@ public class UserEntity {
     @Searchable(type = FieldType.STRING)
     private String email;
 
-    @Column(name = "password", length = 255)
-    private String password;
-
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_social_providers_entry", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "provider")

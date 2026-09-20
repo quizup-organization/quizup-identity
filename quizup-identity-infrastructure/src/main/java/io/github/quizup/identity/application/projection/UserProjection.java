@@ -43,7 +43,6 @@ public class UserProjection {
         User user = new User(
                 event.userId(),
                 event.email(),
-                event.password(),
                 linkedAccounts,
                 event.createdAt()
         );
@@ -66,7 +65,6 @@ public class UserProjection {
             userRepositoryPort.save(new User(
                     user.userId(),
                     user.email(),
-                    user.password(),
                     linkedAccounts,
                     user.createdAt()
             ));

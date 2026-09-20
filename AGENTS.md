@@ -12,32 +12,44 @@
 
 **IdP** de la plateforme : serveur d'autorisation OIDC (**Authorization Code + PKCE**,
 `oidc-react`/`oidc-client-ts` côté client) et gestion de l'identité **immuable**
-(email, hash de mot de passe, providers sociaux liés). **Aucun nom d'affichage** ici :
-le profil modifiable (`displayName`, `bio`, `country`) vit dans `quizup-profile` (créé
-par saga sur `UserRegisteredEvent`).
+(email, providers sociaux liés). **Aucun mot de passe** : l'authentification est
+**passwordless** (code à usage unique OTP envoyé par email) ou **sociale** (Google).
+**Aucun nom d'affichage** ici : le profil modifiable (`displayName`, `bio`, `country`)
+vit dans `quizup-profile` (créé par saga sur `UserRegisteredEvent`).
 
 **Package** : `io.github.quizup.identity`
 
 **Sans UI hébergée** : aucune page HTML/Thymeleaf. Toute l'UX est pilotée par la SPA/mobile.
-Le mot de passe est établi par une **API JSON** qui crée une session interactive temporaire,
+La session interactive temporaire est établie par la **vérification du code OTP** (API JSON),
 puis le pipeline OIDC standard émet les tokens.
 
 ### Pipeline d'authentification
 
 ```text
 SPA /login
-  -> POST /api/auth/login|register   (JSON, credentials: include)
+  -> POST /api/auth/request-code    (JSON {email}, credentials: include) -> 202
+  -> email contenant un code à 6 chiffres (Resend)
+  -> POST /api/auth/verify-code     (JSON {email, code}) -> 200 {userId,email}
   -> session temporaire PostgreSQL (Spring Session JDBC, cookie opaque AUTH_TX)
   -> GET /oauth2/authorize           (session trouvée -> authorization code)
   -> POST /oauth2/token + code_verifier
   -> access_token + id_token
 ```
 
-Le endpoint username/password **n'est pas un Password Grant** et ne retourne jamais de JWT.
+Le premier `verify-code` **crée le compte** (plus d'étape `/register`). L'API JSON ne retourne
+jamais de JWT.
+
+### Compte système unique
+
+`QuizUpConstants.SYSTEM_USER_ID` / `SYSTEM_USER_EMAIL` (`quizup.contacts@gmail.com`) est un compte
+**unique** (admin + bot), **sans credential**, non connectable (exclu du flux OTP). Les alias
+`ADMIN_*` et `BOT_*` pointent vers ce même compte. Il est seedé par `DataSeeder` (`registerUser`,
+`app.seed-data.enabled`).
 
 ### Multi-instance (N instances, sans sticky session)
 
 - **Sessions** : Spring Session JDBC, cookie `AUTH_TX` (host-only) — `SessionConfig`.
+- **Codes OTP** : table `user_login_code` (hash BCrypt, TTL, tentatives, usage unique) → partagés.
 - **Clients OAuth2, authorization codes, tokens, consentements** : JDBC
   (`JdbcRegisteredClientRepository`, `JdbcOAuth2AuthorizationService`,
   `JdbcOAuth2AuthorizationConsentService`) — `OAuth2PersistenceConfig`.
@@ -51,8 +63,8 @@ Le endpoint username/password **n'est pas un Password Grant** et ne retourne jam
 
 ### API JSON d'authentification (`AuthController`)
 
-- `POST /api/auth/login` `{email,password}` -> `200 {userId,email}` | `401`
-- `POST /api/auth/register` `{email,password}` -> `201 {userId,email}` | `400/409`
+- `POST /api/auth/request-code` `{email}` -> `202` (toujours, anti-énumération ; envoie le code OTP)
+- `POST /api/auth/verify-code` `{email, code}` -> `200 {userId,email}` | `401` (code invalide/expiré)
 - `POST /api/auth/logout` -> `204` (invalide la session)
 
 ### Serveur d'autorisation OIDC (Spring Security standard)
@@ -72,8 +84,9 @@ En cas de non-authentification sur `/oauth2/authorize` : `302` vers la SPA
 
 **JWT** : `JwtTokenCustomizer` émet `sub`, `email`, `user_email`, `user_id`, `roles`
 et `aud` (si `app.authorization-server.audience` renseigné) — **aucun claim `name`**.
-Les rôles viennent de `Roles.forUser(userId)` : `ROLE_USER` pour tous, plus `ROLE_ADMIN` pour
-l'utilisateur `QuizUpConstants.ADMIN_USER_ID` (consommé en aval, ex. `role_attribute_path` Grafana).
+Les rôles viennent de `Roles.forUser(userId, email)` : `ROLE_USER` pour tous, plus `ROLE_ADMIN` pour
+le compte système et pour toute adresse de `app.authorization-server.admin-emails`
+(consommé en aval, ex. `role_attribute_path` Grafana).
 
 ---
 
@@ -81,7 +94,8 @@ l'utilisateur `QuizUpConstants.ADMIN_USER_ID` (consommé en aval, ex. `role_attr
 
 Exposés **sur le bus Axon**, sans REST (sauf l'API JSON d'auth) :
 
-- `RegisterUserUseCase` — enregistrement (password ou provider)
+- `RegisterUserUseCase` — enregistrement sans credential (passwordless/système) ou via provider social
+- `PasswordlessAuthUseCase` — demande + vérification du code OTP (implémenté par `PasswordlessAuthService`)
 - `LinkSocialProviderUseCase` — liaison d'un provider à un compte existant
 - `GetUserUseCase`, `FindUserUseCase`, `CheckUserUseCase`, `SearchUserUseCase`
 
@@ -94,12 +108,13 @@ Exposés **sur le bus Axon**, sans REST (sauf l'API JSON d'auth) :
 
 **Aucune dépendance sortante.** Identity est un **fournisseur** sur le bus partagé :
 
-- Événement `UserEvent.UserRegisteredEvent(userId, email, password, provider, createdAt)` ->
+- Événement `UserEvent.UserRegisteredEvent(userId, email, provider, createdAt)` ->
   consommé par `quizup-profile` (saga `CreateProfileSaga`).
 - Événement `UserEvent.SocialProviderLinkedEvent(userId, provider, linkedAt)` (mise à jour locale).
 - Les queries `UserQuery.*` restent exposées sur le bus.
 
-**Ports sortants locaux** : `PasswordEncoderPort` (BCrypt), `UserRepositoryPort` (persistance).
+**Ports sortants locaux** : `LoginCodeRepositoryPort` (OTP), `EmailSenderPort` (Resend),
+`UserRepositoryPort` (persistance).
 
 ---
 
@@ -109,6 +124,9 @@ Exposés **sur le bus Axon**, sans REST (sauf l'API JSON d'auth) :
 |---|---|
 | `app.authorization-server.issuer` | Issuer OIDC public (doit matcher l'authority de la SPA) |
 | `app.authorization-server.audience` | Claim `aud` (optionnel) |
+| `app.authorization-server.admin-emails` | Allowlist d'emails → `ROLE_ADMIN` (env `QUIZUP_ADMIN_EMAILS`) |
+| `app.mail.api-key` / `app.mail.from` / `app.mail.base-url` | Envoi des codes OTP via Resend (`QUIZUP_MAIL_API_KEY`, …) |
+| `app.auth.dev-fixed-code` | Code OTP fixe réservé au profil `local`/E2E |
 | `app.jwk.jwk-set` | JWK Set JSON partagée (secret `QUIZUP_IDENTITY_JWK`) |
 | `app.security.login-page-uri` | SPA login (entry point non authentifié) |
 | `app.security.oauth2.success-redirect-uri` / `failure-redirect-uri` | Retour social |

@@ -30,13 +30,14 @@ public class OidcUserPrincipal implements OidcUser, QuizUpPrincipal, Serializabl
     private final Map<String, Object> attributes;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public OidcUserPrincipal(String userId, String email, OidcIdToken idToken, OidcUserInfo userInfo, Map<String, Object> attributes) {
+    public OidcUserPrincipal(String userId, String email, OidcIdToken idToken, OidcUserInfo userInfo,
+                             Map<String, Object> attributes, Collection<? extends GrantedAuthority> authorities) {
         this.userId = userId;
         this.email = email;
         this.idToken = idToken;
         this.userInfo = userInfo;
         this.attributes = attributes;
-        this.authorities = Roles.forUser(userId);
+        this.authorities = authorities != null ? authorities : java.util.List.of();
     }
 
     @Override

@@ -25,11 +25,11 @@ public interface UserProblems {
         }
     }
 
-    class InvalidPasswordFormatProblem extends UserProblem {
-        public InvalidPasswordFormatProblem(String userId, String email, String password) {
-            super(userId, "urn:quizup:user:invalidPasswordFormat", "Invalid password format",
-                    "The password " + password + " has an invalid format",
-                    Map.of("email", email, "password", password));
+    class InvalidLoginCodeProblem extends UserProblem {
+        public InvalidLoginCodeProblem(String email) {
+            super("UNKNOWN", "urn:quizup:auth:invalidLoginCode", "Invalid login code",
+                    "The login code is invalid, expired or already used",
+                    Map.of("email", email));
         }
     }
 

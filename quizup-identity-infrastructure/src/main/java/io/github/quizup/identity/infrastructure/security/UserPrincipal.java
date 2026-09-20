@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
@@ -13,9 +14,12 @@ import java.util.Map;
 /**
  * Principal utilisateur implémentant à la fois UserDetails et OAuth2User.
  * Serializable : le SecurityContext est persisté dans la session Spring Session JDBC.
+ *
+ * <p>Passwordless : aucun mot de passe n'est porté par le principal.</p>
  */
 public class UserPrincipal implements UserDetails, OAuth2User, QuizUpPrincipal, Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Getter
@@ -24,16 +28,14 @@ public class UserPrincipal implements UserDetails, OAuth2User, QuizUpPrincipal, 
     @Getter
     private final String email;
 
-    private final String password;
     private final Map<String, Object> attributes;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(String userId, String email, String password) {
+    public UserPrincipal(String userId, String email, Collection<? extends GrantedAuthority> authorities) {
         this.userId = userId;
         this.email = email;
-        this.password = password;
         this.attributes = Map.of();
-        this.authorities = Roles.forUser(userId);
+        this.authorities = authorities != null ? authorities : java.util.List.of();
     }
 
     @Override
@@ -48,7 +50,7 @@ public class UserPrincipal implements UserDetails, OAuth2User, QuizUpPrincipal, 
 
     @Override
     public String getPassword() {
-        return password;
+        return null;
     }
 
     @Override

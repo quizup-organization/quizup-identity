@@ -30,13 +30,16 @@ public class OAuth2UserServiceImpl extends OidcUserService {
     private final UserRepositoryPort userRepositoryPort;
     private final RegisterUserUseCase registerUserUseCase;
     private final LinkSocialProviderUseCase linkSocialProviderUseCase;
+    private final Roles roles;
 
     public OAuth2UserServiceImpl(UserRepositoryPort userRepositoryPort,
                                  RegisterUserUseCase registerUserUseCase,
-                                 LinkSocialProviderUseCase linkSocialProviderUseCase) {
+                                 LinkSocialProviderUseCase linkSocialProviderUseCase,
+                                 Roles roles) {
         this.userRepositoryPort = userRepositoryPort;
         this.registerUserUseCase = registerUserUseCase;
         this.linkSocialProviderUseCase = linkSocialProviderUseCase;
+        this.roles = roles;
     }
 
     @Override
@@ -66,7 +69,7 @@ public class OAuth2UserServiceImpl extends OidcUserService {
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             linkIfNeeded(user, socialProvider);
-            return new OidcUserPrincipal(user.userId(), user.email(), oidcUser.getIdToken(), oidcUser.getUserInfo(), attributes);
+            return principal(user.userId(), user.email(), oidcUser, attributes);
         }
 
         logger.info("Creating new user from OAuth2: email={}, provider={}", email, provider);
@@ -79,10 +82,22 @@ public class OAuth2UserServiceImpl extends OidcUserService {
             User existing = userRepositoryPort.findByEmail(email)
                     .orElseThrow(() -> new OAuth2AuthenticationException("Failed to create user: " + exception.getMessage()));
             linkIfNeeded(existing, socialProvider);
-            return new OidcUserPrincipal(existing.userId(), existing.email(), oidcUser.getIdToken(), oidcUser.getUserInfo(), attributes);
+            return principal(existing.userId(), existing.email(), oidcUser, attributes);
         }
 
-        return new OidcUserPrincipal(userId, email, oidcUser.getIdToken(), oidcUser.getUserInfo(), attributes);
+        return principal(userId, email, oidcUser, attributes);
+    }
+
+    private OidcUserPrincipal principal(String userId, String email, OidcUser oidcUser,
+                                        Map<String, Object> attributes) {
+        return new OidcUserPrincipal(
+                userId,
+                email,
+                oidcUser.getIdToken(),
+                oidcUser.getUserInfo(),
+                attributes,
+                roles.forUser(userId, email)
+        );
     }
 
     private void linkIfNeeded(User user, SocialProvider socialProvider) {

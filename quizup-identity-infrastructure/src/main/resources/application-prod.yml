@@ -15,6 +15,8 @@ spring:
     bootstrap-servers: ${QUIZUP_KAFKA_HOST:kafka}:${QUIZUP_KAFKA_PORT:9092}
 
 app:
+  seed-data:
+    enabled: ${QUIZUP_SEED_DATA_ENABLED:false}
   authorization-server:
     issuer: ${QUIZUP_IDENTITY_ISSUER:https://identity.quizup.local}
   security:

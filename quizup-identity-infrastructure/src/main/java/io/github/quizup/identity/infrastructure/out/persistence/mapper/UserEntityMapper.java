@@ -17,7 +17,6 @@ public final class UserEntityMapper {
         return new User(
                 entity.getUserId(),
                 entity.getEmail(),
-                entity.getPassword(),
                 entity.getLinkedSocialAccounts(),
                 entity.getCreatedAt()
         );
@@ -31,7 +30,6 @@ public final class UserEntityMapper {
         UserEntity userEntity = new UserEntity();
         userEntity.setUserId(user.userId());
         userEntity.setEmail(user.email());
-        userEntity.setPassword(user.password());
         userEntity.setLinkedSocialAccounts(user.linkedSocialAccounts());
         userEntity.setCreatedAt(user.createdAt());
         return userEntity;

@@ -25,6 +25,12 @@ app:
   authorization-server:
     issuer: ${QUIZUP_IDENTITY_ISSUER:http://localhost:8085}
     audience: ${QUIZUP_IDENTITY_AUDIENCE:}
+    # Liste blanche d'emails obtenant ROLE_ADMIN (consommé par Grafana via role_attribute_path).
+    admin-emails: ${QUIZUP_ADMIN_EMAILS:}
+  mail:
+    api-key: ${QUIZUP_MAIL_API_KEY:}
+    from: ${QUIZUP_MAIL_FROM:QuizUp <no-reply@quizup.cnadjim.fr>}
+    base-url: ${QUIZUP_MAIL_BASE_URL:https://api.resend.com}
   jwk:
     jwk-set: ${QUIZUP_IDENTITY_JWK:}
   security:

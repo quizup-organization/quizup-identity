@@ -53,6 +53,9 @@ spring:
 app:
   seed-data:
     enabled: true
+  auth:
+    # Dev/E2E uniquement : code de connexion fixe (jamais en prod).
+    dev-fixed-code: "000000"
   jwk:
     # Dev uniquement : génère une clé éphémère si QUIZUP_IDENTITY_JWK est absent.
     generate-if-missing: true

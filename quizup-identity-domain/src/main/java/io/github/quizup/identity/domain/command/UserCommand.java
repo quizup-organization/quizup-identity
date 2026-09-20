@@ -7,10 +7,13 @@ public interface UserCommand {
 
     String userId();
 
-    record RegisterUserWithPasswordCommand(
+    /**
+     * Enregistre un utilisateur sans credential (passwordless / compte système).
+     * L'authentification se fait ensuite par code à usage unique (OTP) ou provider social.
+     */
+    record RegisterUserCommand(
             @TargetAggregateIdentifier String userId,
-            String email,
-            String password
+            String email
     ) implements UserCommand {
     }
 

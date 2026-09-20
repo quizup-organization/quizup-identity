@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.util.Collection;
 
 /**
  * Mixin Jackson du {@link UserPrincipal} pour la (dé)sérialisation des
@@ -12,8 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * <p>
  * (Dé)sérialisation basée sur les <b>champs</b> uniquement
  * ({@code getterVisibility = NONE}) afin de ne jamais introspecter les getters
- * hérités de {@code UserDetails}/{@code OAuth2User}. Le hash du mot de passe
- * n'est jamais sérialisé ({@code WRITE_ONLY}).
+ * hérités de {@code UserDetails}/{@code OAuth2User}.
  */
 @JsonAutoDetect(
         fieldVisibility = Visibility.ANY,
@@ -27,6 +29,6 @@ abstract class UserPrincipalMixin {
     UserPrincipalMixin(
             @JsonProperty(value = "userId") String userId,
             @JsonProperty(value = "email") String email,
-            @JsonProperty(value = "password", access = JsonProperty.Access.WRITE_ONLY) String password) {
+            @JsonProperty(value = "authorities") Collection<? extends GrantedAuthority> authorities) {
     }
 }

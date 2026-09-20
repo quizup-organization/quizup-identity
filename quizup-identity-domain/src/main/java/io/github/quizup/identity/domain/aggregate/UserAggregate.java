@@ -4,7 +4,6 @@ import io.github.quizup.identity.domain.command.UserCommand;
 import io.github.quizup.identity.domain.event.UserEvent;
 import io.github.quizup.identity.domain.exception.UserProblems;
 import io.github.quizup.identity.domain.model.SocialProvider;
-import io.github.quizup.identity.domain.port.out.PasswordEncoderPort;
 import io.github.quizup.identity.domain.port.out.UserRepositoryPort;
 import lombok.Getter;
 import org.axonframework.commandhandling.CommandHandler;
@@ -18,7 +17,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * UserAggregate - Gère le cycle de vie d'un utilisateur
+ * UserAggregate - Gère le cycle de vie d'un utilisateur.
+ *
+ * <p>Aucun credential n'est porté par l'agrégat : l'authentification est passwordless
+ * (code OTP email) ou sociale (provider OIDC).</p>
  */
 @Getter
 @Aggregate
@@ -28,7 +30,6 @@ public class UserAggregate {
     private String userId;
 
     private String email;
-    private String password;
 
     private Set<SocialProvider> linkedSocialAccounts;
 
@@ -37,17 +38,13 @@ public class UserAggregate {
     }
 
     @CommandHandler
-    public UserAggregate(UserCommand.RegisterUserWithPasswordCommand command,
-                         PasswordEncoderPort passwordEncoderPort,
-                         UserRepositoryPort userReadPort) {
+    public UserAggregate(UserCommand.RegisterUserCommand command, UserRepositoryPort userReadPort) {
         validateEmail(command.userId(), command.email(), userReadPort);
-        validatePassword(command.userId(), command.email(), command.password());
 
         AggregateLifecycle.apply(
                 new UserEvent.UserRegisteredEvent(
                         command.userId(),
                         command.email(),
-                        passwordEncoderPort.encode(command.password()),
                         null,
                         Instant.now()
                 )
@@ -63,7 +60,6 @@ public class UserAggregate {
                 new UserEvent.UserRegisteredEvent(
                         command.userId(),
                         command.email(),
-                        null,
                         command.provider(),
                         Instant.now()
                 )
@@ -92,7 +88,6 @@ public class UserAggregate {
         this.linkedSocialAccounts = new HashSet<>();
         this.userId = event.userId();
         this.email = event.email();
-        this.password = event.password();
 
         if (event.provider() != null) {
             this.linkedSocialAccounts.add(event.provider());
@@ -122,12 +117,6 @@ public class UserAggregate {
         }
         if (userRepositoryPort.existsByEmail(email)) {
             throw new UserProblems.UserAlreadyExistsProblem(userId, email);
-        }
-    }
-
-    private void validatePassword(String userId, String email, String password) {
-        if (password == null || password.trim().isEmpty()) {
-            throw new UserProblems.InvalidPasswordFormatProblem(userId, email, password);
         }
     }
 }
