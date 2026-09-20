@@ -1,3 +1,9 @@
+## [1.4.2](https://github.com/quizup-organization/quizup-identity/compare/v1.4.1...v1.4.2) (2026-09-20)
+
+### Bug Fixes
+
+* **observability:** consume quizup-sdk 1.4.2 (Axon activity metrics fix + Swagger server URL) ([0a40edf](https://github.com/quizup-organization/quizup-identity/commit/0a40edf82b4eaf11b8891487b9308e51f84580ad))
+
 ## [1.4.1](https://github.com/quizup-organization/quizup-identity/compare/v1.4.0...v1.4.1) (2026-09-20)
 
 ### Bug Fixes
