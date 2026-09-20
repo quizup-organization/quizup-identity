@@ -134,6 +134,32 @@ authentication:
           access-token-time-to-live: PT30M
           refresh-token-time-to-live: P7D
 
+      # Client Grafana (observabilité) — OIDC Authorization Code + PKCE (client confidentiel).
+      # Le secret provient du SealedSecret `quizup-identity-grafana` (env QUIZUP_GRAFANA_CLIENT_SECRET).
+      grafana:
+        client-id: grafana
+        client-secret: ${QUIZUP_GRAFANA_CLIENT_SECRET:}
+        authentication-methods:
+          - client_secret_basic
+        grant-types:
+          - authorization_code
+          - refresh_token
+        scopes:
+          - openid
+          - profile
+          - email
+        redirect-uris:
+          - https://grafana.quizup.cnadjim.fr/login/generic_oauth
+          - http://localhost:3000/login/generic_oauth
+        post-logout-redirect-uris:
+          - https://grafana.quizup.cnadjim.fr
+          - http://localhost:3000
+        require-proof-key: true
+        require-authorization-consent: false
+        token-config:
+          access-token-time-to-live: PT1H
+          refresh-token-time-to-live: PT24H
+
       # Client Swagger UI
       swagger:
         client-id: swagger
