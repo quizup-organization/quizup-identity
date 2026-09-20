@@ -2,7 +2,6 @@ package io.github.quizup.identity.infrastructure.in.web;
 
 import io.github.quizup.identity.domain.port.in.CheckUserUseCase;
 import io.github.quizup.identity.domain.port.in.RegisterUserUseCase;
-import io.github.quizup.identity.domain.port.out.AuthMetricsPort;
 import io.github.quizup.identity.infrastructure.security.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -52,32 +51,22 @@ public class AuthController {
     private final SecurityContextRepository securityContextRepository;
     private final RegisterUserUseCase registerUserUseCase;
     private final CheckUserUseCase checkUserUseCase;
-    private final AuthMetricsPort authMetrics;
 
     public AuthController(AuthenticationManager authenticationManager,
                           SecurityContextRepository securityContextRepository,
                           RegisterUserUseCase registerUserUseCase,
-                          CheckUserUseCase checkUserUseCase,
-                          AuthMetricsPort authMetrics) {
+                          CheckUserUseCase checkUserUseCase) {
         this.authenticationManager = authenticationManager;
         this.securityContextRepository = securityContextRepository;
         this.registerUserUseCase = registerUserUseCase;
         this.checkUserUseCase = checkUserUseCase;
-        this.authMetrics = authMetrics;
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request,
                                               HttpServletRequest httpRequest,
                                               HttpServletResponse httpResponse) {
-        Authentication authentication;
-        try {
-            authentication = authenticate(request.email(), request.password());
-        } catch (AuthenticationException exception) {
-            authMetrics.loginFailed();
-            throw exception;
-        }
-        authMetrics.loginSucceeded();
+        Authentication authentication = authenticate(request.email(), request.password());
         establishSession(authentication, httpRequest, httpResponse);
         return ResponseEntity.ok(toResponse(authentication));
     }
