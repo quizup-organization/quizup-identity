@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/quizup-organization/quizup-identity/compare/v1.1.0...v1.2.0) (2026-09-20)
+
+### Features
+
+* **observability:** emit ROLE_ADMIN and auth KPIs (consume quizup-sdk 1.2.0) ([b111edb](https://github.com/quizup-organization/quizup-identity/commit/b111edbc0f9ee092265a08140b4e0364de16887e))
+
 ## [1.1.0](https://github.com/quizup-organization/quizup-identity/compare/v1.0.1...v1.1.0) (2026-09-20)
 
 ### Features
