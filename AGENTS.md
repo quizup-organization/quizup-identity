@@ -42,9 +42,8 @@ jamais de JWT.
 ### Compte système unique
 
 `QuizUpConstants.SYSTEM_USER_ID` / `SYSTEM_USER_EMAIL` (`quizup.contacts@gmail.com`) est un compte
-**unique** (admin + bot), **sans credential**, non connectable (exclu du flux OTP). Les alias
-`ADMIN_*` et `BOT_*` pointent vers ce même compte. Il est seedé par `DataSeeder` (`registerUser`,
-`app.seed-data.enabled`).
+**unique** (admin + bot), **sans credential**, non connectable (exclu du flux OTP). Il est seedé par
+`DataSeeder` (`registerUser`, `app.seed-data.enabled`).
 
 ### Multi-instance (N instances, sans sticky session)
 
