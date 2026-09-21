@@ -3,16 +3,9 @@ server:
 
 spring:
   config:
+    import: optional:classpath:quizup-prod.yml
     activate:
       on-profile: prod
-
-  datasource:
-    url: jdbc:postgresql://${QUIZUP_DB_HOST:postgres}:${QUIZUP_DB_PORT:5432}/${QUIZUP_DB_NAME:quizup_identity}
-    username: ${QUIZUP_DB_USERNAME}
-    password: ${QUIZUP_DB_PASSWORD}
-
-  kafka:
-    bootstrap-servers: ${QUIZUP_KAFKA_HOST:kafka}:${QUIZUP_KAFKA_PORT:9092}
 
 app:
   seed-data:
@@ -33,9 +26,5 @@ app:
 microservice:
   swagger:
     oauth2:
+      # Identity expose son propre issuer public (surcharge le défaut partagé).
       authorization-server-url: ${QUIZUP_IDENTITY_ISSUER:https://identity.quizup.local}
-
-logging:
-  level:
-    io.github.quizup: INFO
-

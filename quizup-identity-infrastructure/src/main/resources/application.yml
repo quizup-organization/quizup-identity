@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: optional:classpath:quizup-defaults.yml
   profiles:
     default: local
 
@@ -196,8 +198,6 @@ authentication:
           access-token-time-to-live: PT1H
 
 
-logging:
-  level:
-    io.github.quizup: ${QUIZUP_LOG_LEVEL:INFO}
+
 
 
