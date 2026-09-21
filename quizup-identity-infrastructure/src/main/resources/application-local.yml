@@ -61,6 +61,10 @@ app:
     generate-if-missing: true
 
 logging:
+  structured:
+    # Logs JSON ECS en prod uniquement (défaut SDK). En local : console lisible.
+    format:
+      console: ""
   level:
     org.apache.kafka: OFF
     org.springframework.kafka: OFF
