@@ -48,7 +48,7 @@ spring:
               authorization-grant-types: [ authorization_code, refresh_token ]
               scopes: [ openid, profile, email ]
             require-proof-key: true
-            token: &token-refresh-30m { access-token-time-to-live: PT30M, refresh-token-time-to-live: P7D, reuse-refresh-tokens: false }
+            token: &token-web-mobile { access-token-time-to-live: PT1H, refresh-token-time-to-live: P30D, reuse-refresh-tokens: false }
 
           # Client mobile (Expo).
           mobile:
@@ -58,7 +58,7 @@ spring:
               authorization-grant-types: [ authorization_code, refresh_token ]
               scopes: [ openid, profile, email ]
             require-proof-key: true
-            token: *token-refresh-30m
+            token: *token-web-mobile
 
           # Client Grafana (observabilité) — confidentiel (client_secret_basic + PKCE).
           grafana:
@@ -70,8 +70,8 @@ spring:
               scopes: [ openid, profile, email ]
             require-proof-key: true
             token:
-              access-token-time-to-live: PT1H
-              refresh-token-time-to-live: PT24H
+              access-token-time-to-live: PT4H
+              refresh-token-time-to-live: P30D
               reuse-refresh-tokens: false
 
           # Client Swagger UI (Authorization Code, sans refresh token).
