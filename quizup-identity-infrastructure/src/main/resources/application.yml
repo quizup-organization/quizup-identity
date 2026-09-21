@@ -116,5 +116,5 @@ microservice:
   swagger:
     enabled: true
     description: QuizUp Identity Module - User authentication, authorization, and client management
-    use-root-path: false
+    use-root-path: true
     show-oauth2-endpoints: true

@@ -5,7 +5,7 @@ import io.github.quizup.identity.domain.command.UserCommand;
 import io.github.quizup.identity.domain.event.UserEvent;
 import io.github.quizup.identity.domain.exception.UserProblems;
 import io.github.quizup.identity.domain.model.SocialProvider;
-import io.github.quizup.identity.domain.port.out.UserRepositoryPort;
+import io.github.quizup.identity.domain.port.out.EmailClaimPort;
 import org.axonframework.test.aggregate.AggregateTestFixture;
 import org.junit.jupiter.api.Test;
 
@@ -19,19 +19,22 @@ import static org.mockito.Mockito.when;
  * Test Axon in-memory de l'agrégat {@link UserAggregate} via {@link AggregateTestFixture}.
  * <p>
  * 100 % in-memory : event store de l'agrégat en mémoire, aucun Postgres ni Axon Server.
- * Les ports sortant (mocks) sont déclarés comme resources injectables du fixture.
+ * L'unicité d'email s'appuie désormais sur {@link EmailClaimPort} (réservation atomique).
  */
 class UserAggregateTest {
 
     private final AggregateTestFixture<UserAggregate> fixture =
             new AggregateTestFixture<>(UserAggregate.class);
 
+    private EmailClaimPort claimPort(boolean granted) {
+        EmailClaimPort port = mock(EmailClaimPort.class);
+        when(port.claim(anyString(), anyString())).thenReturn(granted);
+        return port;
+    }
+
     @Test
     void registerUser_appliesUserRegisteredEventWithoutProvider() {
-        UserRepositoryPort readPort = mock(UserRepositoryPort.class);
-        when(readPort.existsByEmail(anyString())).thenReturn(false);
-
-        fixture.registerInjectableResource(readPort)
+        fixture.registerInjectableResource(claimPort(true))
                 .givenNoPriorActivity()
                 .when(new UserCommand.RegisterUserCommand("user-1", "user@quizup.dev"))
                 .expectEventsMatching(QuizUpAxonMatchers.singlePayloadMatching(
@@ -47,10 +50,7 @@ class UserAggregateTest {
 
     @Test
     void registerWithSocial_appliesUserRegisteredEventWithProvider() {
-        UserRepositoryPort readPort = mock(UserRepositoryPort.class);
-        when(readPort.existsByEmail(anyString())).thenReturn(false);
-
-        fixture.registerInjectableResource(readPort)
+        fixture.registerInjectableResource(claimPort(true))
                 .givenNoPriorActivity()
                 .when(new UserCommand.RegisterUserWithSocialCommand("user-2", "user@quizup.dev", SocialProvider.GOOGLE))
                 .expectEventsMatching(QuizUpAxonMatchers.singlePayloadMatching(
@@ -66,13 +66,18 @@ class UserAggregateTest {
 
     @Test
     void registerWithInvalidEmail_throwsInvalidEmailFormat() {
-        UserRepositoryPort readPort = mock(UserRepositoryPort.class);
-        when(readPort.existsByEmail(anyString())).thenReturn(false);
-
-        fixture.registerInjectableResource(readPort)
+        fixture.registerInjectableResource(claimPort(true))
                 .givenNoPriorActivity()
                 .when(new UserCommand.RegisterUserCommand("user-3", "invalid-email"))
                 .expectException(UserProblems.InvalidEmailFormatProblem.class);
+    }
+
+    @Test
+    void registerWithAlreadyClaimedEmail_throwsUserAlreadyExists() {
+        fixture.registerInjectableResource(claimPort(false))
+                .givenNoPriorActivity()
+                .when(new UserCommand.RegisterUserCommand("user-6", "taken@quizup.dev"))
+                .expectException(UserProblems.UserAlreadyExistsProblem.class);
     }
 
     @Test

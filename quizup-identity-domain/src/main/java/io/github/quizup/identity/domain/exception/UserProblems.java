@@ -16,15 +16,6 @@ public interface UserProblems {
         }
     }
 
-    class UserWithEmailNotFoundProblem extends UserProblem {
-        public UserWithEmailNotFoundProblem(String userEmail) {
-            super("UNKNOW", "urn:quizup:user:notFound",
-                    ProblemCategory.BUSINESS_RESOURCE_MISSING,
-                    "User not found",
-                    "The user with email " + userEmail + " was not found", null);
-        }
-    }
-
     class InvalidLoginCodeProblem extends UserProblem {
         public InvalidLoginCodeProblem(String email) {
             super("UNKNOWN", "urn:quizup:auth:invalidLoginCode", "Invalid login code",

@@ -51,3 +51,16 @@ COMMENT ON COLUMN user_login_code.code_hash IS 'Hash BCrypt du code à 6 chiffre
 COMMENT ON COLUMN user_login_code.attempts IS 'Nombre de tentatives de vérification échouées';
 COMMENT ON COLUMN user_login_code.expires_at IS 'Date d''expiration du code';
 COMMENT ON COLUMN user_login_code.consumed_at IS 'Date de consommation (usage unique)';
+
+-- Réservation atomique d'email (write-side) : empêche deux inscriptions concurrentes
+-- pour le même email (email normalisé en minuscules). Indépendant de la projection user_entry
+-- (qui reste la vue de lecture).
+CREATE TABLE IF NOT EXISTS email_claim (
+    email      VARCHAR(255) PRIMARY KEY,
+    user_id    VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP    NOT NULL
+);
+
+COMMENT ON TABLE email_claim IS 'Réservation unique d''un email lors de l''inscription (anti-doublon concurrent)';
+COMMENT ON COLUMN email_claim.email IS 'Email normalisé (minuscules)';
+COMMENT ON COLUMN email_claim.user_id IS 'Identifiant de l''utilisateur ayant réservé l''email';
