@@ -7,11 +7,39 @@ spring:
     activate:
       on-profile: prod
 
+  security:
+    oauth2:
+      authorizationserver:
+        client:
+          web:
+            registration:
+              redirect-uris:
+                - https://app.quizup.local/callback
+                - https://app.quizup.cnadjim.fr/callback
+              post-logout-redirect-uris:
+                - https://app.quizup.local
+                - https://app.quizup.cnadjim.fr
+          mobile:
+            registration:
+              redirect-uris:
+                - quizup://callback
+              post-logout-redirect-uris:
+                - quizup://callback
+          grafana:
+            registration:
+              redirect-uris:
+                - https://grafana.quizup.cnadjim.fr/login/generic_oauth
+              post-logout-redirect-uris:
+                - https://grafana.quizup.cnadjim.fr
+          swagger:
+            registration:
+              redirect-uris:
+                - https://api.quizup.cnadjim.fr/swagger-ui/oauth2-redirect.html
+                - https://api.quizup.cnadjim.fr/webjars/swagger-ui/oauth2-redirect.html
+
 app:
   seed-data:
     enabled: ${QUIZUP_SEED_DATA_ENABLED:false}
-  authorization-server:
-    issuer: ${QUIZUP_IDENTITY_ISSUER:https://identity.quizup.local}
   security:
     login-page-uri: ${QUIZUP_APP_LOGIN_URI:https://app.quizup.local/login}
     oauth2:

@@ -3,7 +3,6 @@ package io.github.quizup.identity.infrastructure.config;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import io.github.quizup.identity.infrastructure.properties.AppProperties;
-import io.github.quizup.identity.infrastructure.properties.OAuth2ClientsProperties;
 import io.github.quizup.identity.infrastructure.security.OAuth2UserServiceImpl;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +20,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
-import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
@@ -48,11 +46,10 @@ import java.util.List;
  */
 @Configuration
 @EnableWebSecurity
-@EnableConfigurationProperties({OAuth2ClientsProperties.class, AppProperties.class})
+@EnableConfigurationProperties(AppProperties.class)
 public class AuthorizationServerConfig {
 
     private final OidcUserService oAuth2UserService;
-    private final String issuer;
     private final String loginPageUri;
     private final String oauth2SuccessRedirectUri;
     private final String oauth2FailureRedirectUri;
@@ -62,7 +59,6 @@ public class AuthorizationServerConfig {
             OAuth2UserServiceImpl oAuth2UserService,
             AppProperties properties) {
         this.oAuth2UserService = oAuth2UserService;
-        this.issuer = properties.authorizationServer().issuer();
         this.loginPageUri = properties.security().loginPageUri();
         this.oauth2SuccessRedirectUri = properties.security().oauth2().successRedirectUri();
         this.oauth2FailureRedirectUri = properties.security().oauth2().failureRedirectUri();
@@ -183,13 +179,6 @@ public class AuthorizationServerConfig {
     @Bean
     public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
         return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
-    }
-
-    @Bean
-    public AuthorizationServerSettings authorizationServerSettings() {
-        return AuthorizationServerSettings.builder()
-                .issuer(issuer)
-                .build();
     }
 
     @Bean

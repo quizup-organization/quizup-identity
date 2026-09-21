@@ -21,7 +21,6 @@ class AppPropertiesTest {
         runner.run(context -> {
             AppProperties properties = context.getBean(AppProperties.class);
 
-            assertThat(properties.authorizationServer().issuer()).isEqualTo("http://localhost:8085");
             assertThat(properties.authorizationServer().audience()).isEmpty();
             assertThat(properties.authorizationServer().adminEmails()).isEmpty();
 
@@ -51,14 +50,14 @@ class AppPropertiesTest {
     @Test
     void explicitValuesOverrideDefaults() {
         runner.withPropertyValues(
-                        "app.authorization-server.issuer=https://identity.quizup.local",
+                        "app.authorization-server.admin-emails=admin@quizup.local",
                         "app.security.session.cookie-secure=true",
                         "app.security.cors.allowed-origins=https://app.quizup.local,https://app2.quizup.local",
                         "app.seed-data.enabled=true")
                 .run(context -> {
                     AppProperties properties = context.getBean(AppProperties.class);
 
-                    assertThat(properties.authorizationServer().issuer()).isEqualTo("https://identity.quizup.local");
+                    assertThat(properties.authorizationServer().adminEmails()).isEqualTo("admin@quizup.local");
                     assertThat(properties.security().session().cookieSecure()).isTrue();
                     assertThat(properties.security().cors().allowedOrigins())
                             .containsExactly("https://app.quizup.local", "https://app2.quizup.local");

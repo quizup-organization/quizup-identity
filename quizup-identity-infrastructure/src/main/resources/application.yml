@@ -12,6 +12,7 @@ spring:
 
   security:
     oauth2:
+      # Client sortant Google (social login).
       client:
         registration:
           google:
@@ -21,9 +22,72 @@ spring:
               - openid
               - profile
               - email
+      # Clients entrants du serveur d'autorisation (standard Spring Boot).
+      # Les redirect URIs sont définies par profil (application-local/-prod.yml).
+      authorizationserver:
+        issuer: ${QUIZUP_IDENTITY_ISSUER:http://localhost:8085}
+        client:
+          # Client credentials M2M (machine-to-machine).
+          server:
+            registration:
+              client-id: server
+              client-secret: ${QUIZUP_IDENTITY_SERVER_CLIENT_SECRET:server-secret}
+              client-authentication-methods: [ client_secret_basic ]
+              authorization-grant-types: [ client_credentials ]
+              scopes: [ openid, profile, read, write ]
+            token:
+              access-token-time-to-live: PT1H
+              refresh-token-time-to-live: PT24H
+              reuse-refresh-tokens: false
+
+          # Client web (SPA).
+          web:
+            registration:
+              client-id: web
+              client-authentication-methods: [ none ]
+              authorization-grant-types: [ authorization_code, refresh_token ]
+              scopes: [ openid, profile, email ]
+            require-proof-key: true
+            token: &token-refresh-30m { access-token-time-to-live: PT30M, refresh-token-time-to-live: P7D, reuse-refresh-tokens: false }
+
+          # Client mobile (Expo).
+          mobile:
+            registration:
+              client-id: mobile
+              client-authentication-methods: [ none ]
+              authorization-grant-types: [ authorization_code, refresh_token ]
+              scopes: [ openid, profile, email ]
+            require-proof-key: true
+            token: *token-refresh-30m
+
+          # Client Grafana (observabilité) — confidentiel (client_secret_basic + PKCE).
+          grafana:
+            registration:
+              client-id: grafana
+              client-secret: ${QUIZUP_GRAFANA_CLIENT_SECRET:}
+              client-authentication-methods: [ client_secret_basic ]
+              authorization-grant-types: [ authorization_code, refresh_token ]
+              scopes: [ openid, profile, email ]
+            require-proof-key: true
+            token:
+              access-token-time-to-live: PT1H
+              refresh-token-time-to-live: PT24H
+              reuse-refresh-tokens: false
+
+          # Client Swagger UI (Authorization Code, sans refresh token).
+          swagger:
+            registration:
+              client-id: swagger
+              client-authentication-methods: [ none ]
+              authorization-grant-types: [ authorization_code ]
+              scopes: [ openid, profile ]
+            require-proof-key: true
+            token:
+              access-token-time-to-live: PT1H
+              reuse-refresh-tokens: false
+
 app:
   authorization-server:
-    issuer: ${QUIZUP_IDENTITY_ISSUER:http://localhost:8085}
     audience: ${QUIZUP_IDENTITY_AUDIENCE:}
     # Liste blanche d'emails obtenant ROLE_ADMIN (consommé par Grafana via role_attribute_path).
     admin-emails: ${QUIZUP_ADMIN_EMAILS:}
@@ -48,133 +112,9 @@ microservice:
   resource-server:
     enabled: false
   cors:
-    # Identity définit son propre CorsConfigurationSource (origines explicites
-    # + credentials) : on désactive le CorsFilter allow-all du SDK.
     enabled: false
   swagger:
     enabled: true
     description: QuizUp Identity Module - User authentication, authorization, and client management
     use-root-path: false
     show-oauth2-endpoints: true
-
-# Ancre YAML : base commune des clients OAuth2 Authorization Code + PKCE
-# (web, mobile, grafana, swagger). Les clés explicites d'un client ont priorité.
-# Le `client-id` implicite est la clé de la map (le seeder retombe dessus).
-x-oauth2-authcode: &oauth2-authcode
-  grant-types:
-    - authorization_code
-    - refresh_token
-  scopes:
-    - openid
-    - profile
-    - email
-  require-proof-key: true
-  require-authorization-consent: false
-
-authentication:
-  oauth2:
-    clients:
-      # Client credentials M2M (machine-to-machine).
-      server:
-        client-secret: ${QUIZUP_IDENTITY_SERVER_CLIENT_SECRET:server-secret}
-        authentication-methods:
-          - client_secret_basic
-        grant-types:
-          - client_credentials
-        scopes:
-          - openid
-          - profile
-          - read
-          - write
-        token-config:
-          access-token-time-to-live: PT1H
-          refresh-token-time-to-live: PT24H
-
-      # Client web (SPA) — PKCE + refresh token.
-      web:
-        <<: *oauth2-authcode
-        authentication-methods:
-          - none
-        redirect-uris:
-          - http://localhost:3000/callback
-          - http://localhost:3000/auth/callback
-          - http://localhost:5173/callback
-          - http://localhost:5174/callback
-          - http://localhost:5175/callback
-          - http://localhost:4200/callback
-          - https://app.quizup.local/callback
-          - https://app.quizup.cnadjim.fr/callback
-        post-logout-redirect-uris:
-          - http://localhost:3000
-          - http://localhost:5173
-          - http://localhost:5174
-          - http://localhost:5175
-          - http://localhost:4200
-          - https://app.quizup.local
-          - https://app.quizup.cnadjim.fr
-        token-config:
-          access-token-time-to-live: PT30M
-          refresh-token-time-to-live: P7D
-
-      # Client mobile (Expo) — PKCE + refresh token.
-      mobile:
-        <<: *oauth2-authcode
-        authentication-methods:
-          - none
-        redirect-uris:
-          - quizup://callback
-          - exp://127.0.0.1:8081/--/callback
-          - http://localhost:8081/callback
-        post-logout-redirect-uris:
-          - quizup://callback
-          - exp://127.0.0.1:8081/--/
-          - http://localhost:8081
-        token-config:
-          access-token-time-to-live: PT30M
-          refresh-token-time-to-live: P7D
-
-      # Client Grafana (observabilité) — OIDC confidentiel (client_secret_basic + PKCE).
-      # Le secret provient du SealedSecret `quizup-identity-grafana`.
-      grafana:
-        <<: *oauth2-authcode
-        client-secret: ${QUIZUP_GRAFANA_CLIENT_SECRET:}
-        authentication-methods:
-          - client_secret_basic
-        redirect-uris:
-          - https://grafana.quizup.cnadjim.fr/login/generic_oauth
-          - http://localhost:3000/login/generic_oauth
-        post-logout-redirect-uris:
-          - https://grafana.quizup.cnadjim.fr
-          - http://localhost:3000
-        token-config:
-          access-token-time-to-live: PT1H
-          refresh-token-time-to-live: PT24H
-
-      # Client Swagger UI (Authorization Code, sans refresh token).
-      swagger:
-        <<: *oauth2-authcode
-        authentication-methods:
-          - none
-        grant-types:
-          - authorization_code
-        scopes:
-          - openid
-          - profile
-        redirect-uris:
-          - http://localhost:8080/swagger-ui/oauth2-redirect.html
-          - http://localhost:8080/webjars/swagger-ui/oauth2-redirect.html
-          - http://localhost:8081/swagger-ui/oauth2-redirect.html
-          - http://localhost:8082/swagger-ui/oauth2-redirect.html
-          - http://localhost:8083/swagger-ui/oauth2-redirect.html
-          - http://localhost:8084/swagger-ui/oauth2-redirect.html
-          - http://localhost:8085/swagger-ui/oauth2-redirect.html
-          - http://localhost:8086/swagger-ui/oauth2-redirect.html
-          - http://localhost:8087/swagger-ui/oauth2-redirect.html
-          - http://localhost:8088/swagger-ui/oauth2-redirect.html
-          - http://localhost:8090/swagger-ui/oauth2-redirect.html
-          - http://localhost:8091/swagger-ui/oauth2-redirect.html
-          # Swagger UI du gateway en prod (agrégé derrière api.quizup.cnadjim.fr).
-          - https://api.quizup.cnadjim.fr/swagger-ui/oauth2-redirect.html
-          - https://api.quizup.cnadjim.fr/webjars/swagger-ui/oauth2-redirect.html
-        token-config:
-          access-token-time-to-live: PT1H

@@ -49,10 +49,14 @@ jamais de JWT.
 
 - **Sessions** : Spring Session JDBC, cookie `AUTH_TX` (host-only) — `SessionConfig`.
 - **Codes OTP** : table `user_login_code` (hash BCrypt, TTL, tentatives, usage unique) → partagés.
-- **Clients OAuth2, authorization codes, tokens, consentements** : JDBC
-  (`JdbcRegisteredClientRepository`, `JdbcOAuth2AuthorizationService`,
-  `JdbcOAuth2AuthorizationConsentService`) — `OAuth2PersistenceConfig`.
-- **Clients seedés** depuis `authentication.oauth2.clients` (`application.yml`), id déterministe = clientId.
+- **Clients OAuth2 entrants** : déclarés via les propriétés **standard** Spring Boot
+  `spring.security.oauth2.authorizationserver.client.*` (`application.yml` + redirect URIs
+  par profil), exposés en **in-memory** (`InMemoryRegisteredClientRepository`) par
+  `OAuth2ClientConfig` (secret encodé BCrypt, cf. plus bas).
+- **Authorization codes, tokens, consentements** : JDBC
+  (`JdbcOAuth2AuthorizationService`, `JdbcOAuth2AuthorizationConsentService`) —
+  `OAuth2PersistenceConfig` (état dynamique partagé entre instances ; le registre de
+  clients, lui, est statique et identique sur chaque pod).
 - **Clés de signature JWT partagées** : JWK Set fournie par le secret Kubernetes
   (`QUIZUP_IDENTITY_JWK` -> `app.jwk.jwk-set`) ; fallback éphémère réservé au profil `local`.
 

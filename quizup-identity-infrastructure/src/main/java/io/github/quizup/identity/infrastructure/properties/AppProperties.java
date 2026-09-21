@@ -24,7 +24,6 @@ public record AppProperties(
         @DefaultValue SeedData seedData) {
 
     public record AuthorizationServer(
-            @DefaultValue("http://localhost:8085") String issuer,
             @DefaultValue("") String audience,
             @DefaultValue("") String adminEmails) {
     }

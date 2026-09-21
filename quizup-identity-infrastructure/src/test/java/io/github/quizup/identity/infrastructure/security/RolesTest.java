@@ -51,7 +51,7 @@ class RolesTest {
 
     private Roles roles(String adminEmails) {
         AppProperties properties = new AppProperties(
-                new AppProperties.AuthorizationServer("http://localhost:8085", "", adminEmails),
+                new AppProperties.AuthorizationServer("", adminEmails),
                 new AppProperties.Security(
                         "http://localhost:5173/login",
                         new AppProperties.Security.OAuth2("success", "failure"),
