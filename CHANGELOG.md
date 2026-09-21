@@ -1,3 +1,14 @@
+## [1.6.0](https://github.com/quizup-organization/quizup-identity/compare/v1.5.3...v1.6.0) (2026-09-21)
+
+### Features
+
+* **identity:** atomic email reservation against concurrent sign-ups ([9b096b6](https://github.com/quizup-organization/quizup-identity/commit/9b096b66f223536a81019073e99f672684c45866))
+* **identity:** extend token lifetimes for web, mobile and grafana ([92ab472](https://github.com/quizup-organization/quizup-identity/commit/92ab472b790bb6b62cb0e2f26a30150c43788750))
+
+### Bug Fixes
+
+* **observability:** keep readable console logs in local ([8b1de91](https://github.com/quizup-organization/quizup-identity/commit/8b1de916f578e73b1c604a833373780b57aa7eaa))
+
 ## [1.5.3](https://github.com/quizup-organization/quizup-identity/compare/v1.5.2...v1.5.3) (2026-09-20)
 
 ### Bug Fixes
