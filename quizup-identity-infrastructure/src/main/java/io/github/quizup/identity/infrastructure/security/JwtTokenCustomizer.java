@@ -1,8 +1,8 @@
 package io.github.quizup.identity.infrastructure.security;
 
+import io.github.quizup.identity.infrastructure.properties.AppProperties;
 import io.github.quizup.microservice.core.domain.constant.SecurityConstants;
 import io.github.quizup.microservice.core.domain.model.security.QuizUpPrincipal;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
@@ -20,8 +20,8 @@ public class JwtTokenCustomizer implements OAuth2TokenCustomizer<JwtEncodingCont
 
     private final String audience;
 
-    public JwtTokenCustomizer(@Value("${app.authorization-server.audience:}") String audience) {
-        this.audience = audience;
+    public JwtTokenCustomizer(AppProperties properties) {
+        this.audience = properties.authorizationServer().audience();
     }
 
     @Override

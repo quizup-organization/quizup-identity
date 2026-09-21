@@ -3,10 +3,11 @@ package io.github.quizup.identity.infrastructure.config;
 import io.github.quizup.microservice.core.domain.constant.QuizUpConstants;
 import io.github.quizup.identity.domain.port.in.CheckUserUseCase;
 import io.github.quizup.identity.domain.port.in.RegisterUserUseCase;
+import io.github.quizup.identity.infrastructure.properties.AppProperties;
+import io.github.quizup.microservice.core.domain.constant.QuizUpConstants;
 import org.axonframework.modelling.command.AggregateStreamCreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -26,14 +27,14 @@ public class DataSeeder implements CommandLineRunner {
     private static final Logger logger = LoggerFactory.getLogger(DataSeeder.class);
     private final RegisterUserUseCase registerUserUseCase;
     private final CheckUserUseCase checkUserUseCase;
-
-    @Value("${app.seed-data.enabled:false}")
-    private boolean seedDataEnabled;
+    private final boolean seedDataEnabled;
 
     public DataSeeder(RegisterUserUseCase registerUserUseCase,
-                      CheckUserUseCase checkUserUseCase) {
+                      CheckUserUseCase checkUserUseCase,
+                      AppProperties properties) {
         this.registerUserUseCase = registerUserUseCase;
         this.checkUserUseCase = checkUserUseCase;
+        this.seedDataEnabled = properties.seedData().enabled();
     }
 
     @Override

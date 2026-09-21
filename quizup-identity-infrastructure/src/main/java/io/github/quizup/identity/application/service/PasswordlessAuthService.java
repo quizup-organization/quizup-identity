@@ -9,10 +9,10 @@ import io.github.quizup.identity.domain.port.in.PasswordlessAuthUseCase;
 import io.github.quizup.identity.domain.port.in.RegisterUserUseCase;
 import io.github.quizup.identity.domain.port.out.EmailSenderPort;
 import io.github.quizup.identity.domain.port.out.LoginCodeRepositoryPort;
+import io.github.quizup.identity.infrastructure.properties.AppProperties;
 import io.github.quizup.microservice.core.domain.constant.QuizUpConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -48,13 +48,13 @@ public class PasswordlessAuthService implements PasswordlessAuthUseCase {
                                    FindUserUseCase findUserUseCase,
                                    RegisterUserUseCase registerUserUseCase,
                                    PasswordEncoder passwordEncoder,
-                                   @Value("${app.auth.dev-fixed-code:}") String devFixedCode) {
+                                   AppProperties properties) {
         this.loginCodeRepository = loginCodeRepository;
         this.emailSender = emailSender;
         this.findUserUseCase = findUserUseCase;
         this.registerUserUseCase = registerUserUseCase;
         this.passwordEncoder = passwordEncoder;
-        this.devFixedCode = devFixedCode;
+        this.devFixedCode = properties.auth().devFixedCode();
     }
 
     @Override

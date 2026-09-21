@@ -2,9 +2,9 @@ package io.github.quizup.identity.infrastructure.config;
 
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import io.github.quizup.identity.infrastructure.properties.AppProperties;
 import io.github.quizup.identity.infrastructure.properties.OAuth2ClientsProperties;
 import io.github.quizup.identity.infrastructure.security.OAuth2UserServiceImpl;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,7 +48,7 @@ import java.util.List;
  */
 @Configuration
 @EnableWebSecurity
-@EnableConfigurationProperties(OAuth2ClientsProperties.class)
+@EnableConfigurationProperties({OAuth2ClientsProperties.class, AppProperties.class})
 public class AuthorizationServerConfig {
 
     private final OidcUserService oAuth2UserService;
@@ -60,17 +60,13 @@ public class AuthorizationServerConfig {
 
     public AuthorizationServerConfig(
             OAuth2UserServiceImpl oAuth2UserService,
-            @Value("${app.authorization-server.issuer:http://localhost:8085}") String issuer,
-            @Value("${app.security.login-page-uri:http://localhost:5173/login}") String loginPageUri,
-            @Value("${app.security.oauth2.success-redirect-uri:http://localhost:5173/login}") String oauth2SuccessRedirectUri,
-            @Value("${app.security.oauth2.failure-redirect-uri:http://localhost:5173/login?error}") String oauth2FailureRedirectUri,
-            @Value("${app.security.cors.allowed-origins:http://localhost:5173}") List<String> corsAllowedOrigins) {
+            AppProperties properties) {
         this.oAuth2UserService = oAuth2UserService;
-        this.issuer = issuer;
-        this.loginPageUri = loginPageUri;
-        this.oauth2SuccessRedirectUri = oauth2SuccessRedirectUri;
-        this.oauth2FailureRedirectUri = oauth2FailureRedirectUri;
-        this.corsAllowedOrigins = corsAllowedOrigins;
+        this.issuer = properties.authorizationServer().issuer();
+        this.loginPageUri = properties.security().loginPageUri();
+        this.oauth2SuccessRedirectUri = properties.security().oauth2().successRedirectUri();
+        this.oauth2FailureRedirectUri = properties.security().oauth2().failureRedirectUri();
+        this.corsAllowedOrigins = properties.security().cors().allowedOrigins();
     }
 
     @Bean

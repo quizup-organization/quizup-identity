@@ -1,9 +1,9 @@
 package io.github.quizup.identity.infrastructure.out.mail;
 
 import io.github.quizup.identity.domain.port.out.EmailSenderPort;
+import io.github.quizup.identity.infrastructure.properties.AppProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -29,13 +29,10 @@ public class ResendEmailAdapter implements EmailSenderPort {
     private final String baseUrl;
     private final RestClient restClient;
 
-    public ResendEmailAdapter(
-            @Value("${app.mail.api-key:}") String apiKey,
-            @Value("${app.mail.from:QuizUp <no-reply@quizup.cnadjim.fr>}") String from,
-            @Value("${app.mail.base-url:https://api.resend.com}") String baseUrl) {
-        this.apiKey = apiKey;
-        this.from = from;
-        this.baseUrl = baseUrl;
+    public ResendEmailAdapter(AppProperties properties) {
+        this.apiKey = properties.mail().apiKey();
+        this.from = properties.mail().from();
+        this.baseUrl = properties.mail().baseUrl();
         this.restClient = RestClient.create();
     }
 

@@ -1,6 +1,6 @@
 package io.github.quizup.identity.infrastructure.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import io.github.quizup.identity.infrastructure.properties.AppProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
@@ -17,17 +17,14 @@ import org.springframework.session.web.http.DefaultCookieSerializer;
 public class SessionConfig {
 
     @Bean
-    public CookieSerializer cookieSerializer(
-            @Value("${app.security.session.cookie-name:AUTH_TX}") String cookieName,
-            @Value("${app.security.session.cookie-same-site:Lax}") String sameSite,
-            @Value("${app.security.session.cookie-secure:false}") boolean secure,
-            @Value("${app.security.session.cookie-path:/}") String path) {
+    public CookieSerializer cookieSerializer(AppProperties properties) {
+        AppProperties.Security.Session session = properties.security().session();
 
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-        serializer.setCookieName(cookieName);
-        serializer.setSameSite(sameSite);
-        serializer.setUseSecureCookie(secure);
-        serializer.setCookiePath(path);
+        serializer.setCookieName(session.cookieName());
+        serializer.setSameSite(session.cookieSameSite());
+        serializer.setUseSecureCookie(session.cookieSecure());
+        serializer.setCookiePath(session.cookiePath());
         serializer.setUseHttpOnlyCookie(true);
         return serializer;
     }

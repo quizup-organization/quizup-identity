@@ -1,7 +1,7 @@
 package io.github.quizup.identity.infrastructure.security;
 
+import io.github.quizup.identity.infrastructure.properties.AppProperties;
 import io.github.quizup.microservice.core.domain.constant.QuizUpConstants;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -28,8 +28,8 @@ public class Roles {
 
     private final Set<String> adminEmails;
 
-    public Roles(@Value("${app.authorization-server.admin-emails:}") String adminEmails) {
-        this.adminEmails = Arrays.stream(adminEmails.split(","))
+    public Roles(AppProperties properties) {
+        this.adminEmails = Arrays.stream(properties.authorizationServer().adminEmails().split(","))
                 .map(String::trim)
                 .filter(value -> !value.isEmpty())
                 .map(value -> value.toLowerCase(Locale.ROOT))

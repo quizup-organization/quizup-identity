@@ -5,9 +5,9 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import io.github.quizup.identity.infrastructure.properties.AppProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -34,9 +34,10 @@ public class JwkConfig {
     private static final Logger logger = LoggerFactory.getLogger(JwkConfig.class);
 
     @Bean
-    public JWKSource<SecurityContext> jwkSource(
-            @Value("${app.jwk.jwk-set:}") String jwkSet,
-            @Value("${app.jwk.generate-if-missing:false}") boolean generateIfMissing) {
+    public JWKSource<SecurityContext> jwkSource(AppProperties properties) {
+
+        String jwkSet = properties.jwk().jwkSet();
+        boolean generateIfMissing = properties.jwk().generateIfMissing();
 
         if (jwkSet != null && !jwkSet.isBlank()) {
             return fromConfiguredJwkSet(jwkSet);
