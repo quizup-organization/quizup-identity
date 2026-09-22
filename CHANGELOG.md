@@ -1,3 +1,9 @@
+## [1.7.1](https://github.com/quizup-organization/quizup-identity/compare/v1.7.0...v1.7.1) (2026-09-22)
+
+### Bug Fixes
+
+* **identity:** upgrade quizup-parent to 2.3.1 (registration address fix) ([164750e](https://github.com/quizup-organization/quizup-identity/commit/164750ebe28e6f4354e8714a7a2f574758aabbab))
+
 ## [1.7.0](https://github.com/quizup-organization/quizup-identity/compare/v1.6.0...v1.7.0) (2026-09-22)
 
 ### Features
