@@ -18,6 +18,7 @@ import java.util.Set;
  * UserProjection - Event Handlers pour maintenir les projections read-only
  */
 @Component
+@ProcessingGroup("user-projection")
 public class UserProjection {
 
     private static final Logger logger = LoggerFactory.getLogger(UserProjection.class);

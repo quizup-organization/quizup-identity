@@ -87,6 +87,9 @@ spring:
               reuse-refresh-tokens: false
 
 app:
+  # Seed par défaut : compte système (identity), profil système (profile), sujets starters (theme).
+  seed-data:
+    enabled: true
   authorization-server:
     audience: ${QUIZUP_IDENTITY_AUDIENCE:}
     # Liste blanche d'emails obtenant ROLE_ADMIN (consommé par Grafana via role_attribute_path).

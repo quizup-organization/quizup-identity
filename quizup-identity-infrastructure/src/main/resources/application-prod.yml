@@ -39,7 +39,7 @@ spring:
 
 app:
   seed-data:
-    enabled: ${QUIZUP_SEED_DATA_ENABLED:false}
+    enabled: ${QUIZUP_SEED_DATA_ENABLED:true}
   security:
     login-page-uri: ${QUIZUP_APP_LOGIN_URI:https://app.quizup.local/login}
     oauth2:

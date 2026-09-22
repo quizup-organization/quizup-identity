@@ -4,6 +4,8 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import io.github.quizup.identity.infrastructure.properties.AppProperties;
 import io.github.quizup.identity.infrastructure.security.OAuth2UserServiceImpl;
+import io.github.quizup.identity.infrastructure.security.PublicClientRefreshTokenAuthenticationConverter;
+import io.github.quizup.identity.infrastructure.security.PublicClientRefreshTokenAuthenticationProvider;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +22,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
@@ -69,15 +73,22 @@ public class AuthorizationServerConfig {
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(
             HttpSecurity http,
-            CorsConfigurationSource corsConfigurationSource) throws Exception {
+            CorsConfigurationSource corsConfigurationSource,
+            OAuth2TokenGenerator<?> tokenGenerator,
+            RegisteredClientRepository registeredClientRepository) throws Exception {
 
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
                 OAuth2AuthorizationServerConfigurer.authorizationServer();
 
         http
                 .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-                .with(authorizationServerConfigurer, authorizationServer ->
-                        authorizationServer.oidc(Customizer.withDefaults()))
+                .with(authorizationServerConfigurer, authorizationServer -> authorizationServer
+                        .oidc(Customizer.withDefaults())
+                        .tokenGenerator(tokenGenerator)
+                        .clientAuthentication(clientAuthentication -> clientAuthentication
+                                .authenticationConverter(new PublicClientRefreshTokenAuthenticationConverter())
+                                .authenticationProvider(
+                                        new PublicClientRefreshTokenAuthenticationProvider(registeredClientRepository))))
                 .csrf(csrf -> csrf.ignoringRequestMatchers(authorizationServerConfigurer.getEndpointsMatcher()))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .exceptionHandling(exceptions -> exceptions

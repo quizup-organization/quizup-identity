@@ -17,7 +17,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,13 +45,16 @@ public class AuthController {
     private final PasswordlessAuthUseCase passwordlessAuthUseCase;
     private final SecurityContextRepository securityContextRepository;
     private final Roles roles;
+    private final OAuth2AuthorizationService authorizationService;
 
     public AuthController(PasswordlessAuthUseCase passwordlessAuthUseCase,
                           SecurityContextRepository securityContextRepository,
-                          Roles roles) {
+                          Roles roles,
+                          OAuth2AuthorizationService authorizationService) {
         this.passwordlessAuthUseCase = passwordlessAuthUseCase;
         this.securityContextRepository = securityContextRepository;
         this.roles = roles;
+        this.authorizationService = authorizationService;
     }
 
     /**
@@ -75,13 +82,26 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletRequest httpRequest) {
+    public ResponseEntity<Void> logout(@RequestBody(required = false) LogoutRequest request,
+                                       HttpServletRequest httpRequest) {
+        if (request != null && StringUtils.hasText(request.refreshToken())) {
+            revokeAuthorization(request.refreshToken());
+        }
         HttpSession session = httpRequest.getSession(false);
         if (session != null) {
             session.invalidate();
         }
         SecurityContextHolder.clearContext();
         return ResponseEntity.noContent().build();
+    }
+
+    private void revokeAuthorization(String refreshToken) {
+        OAuth2Authorization authorization =
+                authorizationService.findByToken(refreshToken, OAuth2TokenType.REFRESH_TOKEN);
+        if (authorization != null) {
+            authorizationService.remove(authorization);
+            logger.info("Revoked OAuth2 authorization on logout: principal={}", authorization.getPrincipalName());
+        }
     }
 
     @ExceptionHandler(UserProblems.InvalidLoginCodeProblem.class)
