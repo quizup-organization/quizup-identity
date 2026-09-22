@@ -1,3 +1,9 @@
+## [1.7.0](https://github.com/quizup-organization/quizup-identity/compare/v1.6.0...v1.7.0) (2026-09-22)
+
+### Features
+
+* **identity:** public-client refresh tokens, explicit Axon processing groups and default seeding ([4a5dec9](https://github.com/quizup-organization/quizup-identity/commit/4a5dec9aa17621707e59e8e47dd50ad33de36281))
+
 ## [1.6.0](https://github.com/quizup-organization/quizup-identity/compare/v1.5.3...v1.6.0) (2026-09-21)
 
 ### Features
