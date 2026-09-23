@@ -6,6 +6,8 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import io.github.quizup.microservice.core.domain.model.security.QuizUpPrincipal;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
@@ -17,6 +19,7 @@ import java.util.Map;
  */
 public class OidcUserPrincipal implements OidcUser, QuizUpPrincipal, Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Getter

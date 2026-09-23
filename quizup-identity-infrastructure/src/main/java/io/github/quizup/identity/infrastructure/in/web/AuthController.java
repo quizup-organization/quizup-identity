@@ -22,11 +22,14 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.net.URI;
 
 /**
  * API JSON d'authentification pilotée par la SPA/mobile.
@@ -58,18 +61,20 @@ public class AuthController {
     }
 
     /**
-     * Demande l'envoi d'un code de connexion. Répond toujours 202 (anti-énumération).
+     * Demande l'envoi d'un code de connexion (ressource {@code login-codes}).
+     * Répond toujours 202 (anti-énumération).
      */
-    @PostMapping("/request-code")
+    @PostMapping("/login-codes")
     public ResponseEntity<Void> requestCode(@Valid @RequestBody RequestCodeRequest request) {
         passwordlessAuthUseCase.requestCode(request.email());
         return ResponseEntity.accepted().build();
     }
 
     /**
-     * Vérifie le code et établit la session interactive. Crée le compte au premier login.
+     * Vérifie le code et établit la session interactive (ressource {@code sessions}).
+     * Crée le compte au premier login. REST : création → 201 + Location de la session courante.
      */
-    @PostMapping("/verify-code")
+    @PostMapping("/sessions")
     public ResponseEntity<AuthResponse> verifyCode(@Valid @RequestBody VerifyCodeRequest request,
                                                    HttpServletRequest httpRequest,
                                                    HttpServletResponse httpResponse) {
@@ -78,10 +83,15 @@ public class AuthController {
 
         establishSession(user, httpRequest, httpResponse);
         logger.info("Session established via login code: userId={}", user.userId());
-        return ResponseEntity.ok(new AuthResponse(user.userId(), user.email()));
+        return ResponseEntity
+                .created(URI.create("/api/auth/sessions/current"))
+                .body(new AuthResponse(user.userId(), user.email()));
     }
 
-    @PostMapping("/logout")
+    /**
+     * Ferme la session courante (ressource {@code sessions/current}). REST : retrait → 204.
+     */
+    @DeleteMapping("/sessions/current")
     public ResponseEntity<Void> logout(@RequestBody(required = false) LogoutRequest request,
                                        HttpServletRequest httpRequest) {
         if (request != null && StringUtils.hasText(request.refreshToken())) {

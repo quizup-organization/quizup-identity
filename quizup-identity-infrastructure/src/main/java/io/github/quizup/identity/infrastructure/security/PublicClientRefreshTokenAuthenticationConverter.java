@@ -55,7 +55,7 @@ public final class PublicClientRefreshTokenAuthenticationConverter implements Au
         Map<String, Object> additionalParameters = new HashMap<>();
         parameters.forEach((key, value) -> {
             if (!OAuth2ParameterNames.CLIENT_ID.equals(key)) {
-                additionalParameters.put(key, (value.size() == 1) ? value.get(0) : value.toArray(new String[0]));
+                additionalParameters.put(key, (value.size() == 1) ? value.getFirst() : value.toArray(new String[0]));
             }
         });
 

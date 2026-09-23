@@ -27,9 +27,9 @@ puis le pipeline OIDC standard émet les tokens.
 
 ```text
 SPA /login
-  -> POST /api/auth/request-code    (JSON {email}, credentials: include) -> 202
+  -> POST /api/auth/login-codes     (JSON {email}, credentials: include) -> 202
   -> email contenant un code à 6 chiffres (Resend)
-  -> POST /api/auth/verify-code     (JSON {email, code}) -> 200 {userId,email}
+  -> POST /api/auth/sessions        (JSON {email, code}) -> 201 {userId,email} + Location /api/auth/sessions/current
   -> session temporaire PostgreSQL (Spring Session JDBC, cookie opaque AUTH_TX)
   -> GET /oauth2/authorize           (session trouvée -> authorization code)
   -> POST /oauth2/token + code_verifier
@@ -66,9 +66,12 @@ jamais de JWT.
 
 ### API JSON d'authentification (`AuthController`)
 
-- `POST /api/auth/request-code` `{email}` -> `202` (toujours, anti-énumération ; envoie le code OTP)
-- `POST /api/auth/verify-code` `{email, code}` -> `200 {userId,email}` | `401` (code invalide/expiré)
-- `POST /api/auth/logout` -> `204` (invalide la session)
+Conforme au contrat REST commun (`best-practices/.backend/rest-api.md`) : ressources plutôt que
+verbes.
+
+- `POST /api/auth/login-codes` `{email}` -> `202` (toujours, anti-énumération ; envoie le code OTP)
+- `POST /api/auth/sessions` `{email, code}` -> `201 {userId,email}` + `Location /api/auth/sessions/current` | `401` (code invalide/expiré)
+- `DELETE /api/auth/sessions/current` -> `204` (invalide la session)
 
 ### Serveur d'autorisation OIDC (Spring Security standard)
 
