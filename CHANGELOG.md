@@ -1,3 +1,9 @@
+## [1.8.0](https://github.com/quizup-organization/quizup-identity/compare/v1.7.4...v1.8.0) (2026-09-23)
+
+### Features
+
+* **identity:** passwordless auth as resources (login-codes/sessions) and bump SDK to 2.4.1 ([0ee48aa](https://github.com/quizup-organization/quizup-identity/commit/0ee48aa24d9d9323b85576844a2dec7885499fd0))
+
 ## [1.7.4](https://github.com/quizup-organization/quizup-identity/compare/v1.7.3...v1.7.4) (2026-09-22)
 
 ### Bug Fixes
