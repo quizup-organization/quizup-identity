@@ -1,3 +1,9 @@
+## [1.8.3](https://github.com/quizup-organization/quizup-identity/compare/v1.8.2...v1.8.3) (2026-09-24)
+
+### Bug Fixes
+
+* **deps:** bump quizup-parent to 2.4.4 (typed PageResult over query transport) ([fa62722](https://github.com/quizup-organization/quizup-identity/commit/fa627226c65b0383b2c8cccdd256e8a7ab318cf4))
+
 ## [1.8.2](https://github.com/quizup-organization/quizup-identity/compare/v1.8.1...v1.8.2) (2026-09-24)
 
 ### Bug Fixes
