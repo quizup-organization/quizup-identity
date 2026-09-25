@@ -1,3 +1,15 @@
+## [2.0.0](https://github.com/quizup-organization/quizup-identity/compare/v1.8.3...v2.0.0) (2026-09-25)
+
+### ⚠ BREAKING CHANGES
+
+* **identity:** the user search use case and repository ports now use the
+SDK core SearchRequest/SearchResponse DTOs; the previous custom pagination
+model is removed.
+
+### Features
+
+* **identity:** migrate to SDK SearchRequest/SearchResponse contracts ([3667676](https://github.com/quizup-organization/quizup-identity/commit/366767661ca62661d6473170650e60570bc1fc5e))
+
 ## [1.8.3](https://github.com/quizup-organization/quizup-identity/compare/v1.8.2...v1.8.3) (2026-09-24)
 
 ### Bug Fixes
