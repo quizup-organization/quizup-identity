@@ -1,19 +1,10 @@
 package io.github.quizup.identity.domain.query;
 
-import io.github.quizup.microservice.core.domain.model.search.FilterCriteria;
-import io.github.quizup.microservice.core.domain.model.search.PageCriteria;
-import io.github.quizup.microservice.core.domain.model.search.SortCriteria;
-import io.github.quizup.microservice.core.domain.query.SearchQuery;
-
-import java.util.List;
+import io.github.quizup.microservice.core.infrastructure.in.api.request.SearchRequest;
 
 public interface UserQuery {
 
-    record UserSearchQuery(
-            List<FilterCriteria> filters,
-            List<SortCriteria> sorts,
-            PageCriteria page
-    ) implements UserQuery, SearchQuery {
+    record UserSearchQuery(SearchRequest request) implements UserQuery {
     }
 
     record UserExistsByIdQuery(String userId) implements UserQuery {

@@ -1,6 +1,6 @@
 package io.github.quizup.identity.application.handler.query;
 
-import io.github.quizup.microservice.core.domain.model.search.PageResult;
+import io.github.quizup.microservice.core.infrastructure.in.api.response.SearchResponse;
 import io.github.quizup.identity.domain.exception.UserProblems;
 import io.github.quizup.identity.domain.model.User;
 import io.github.quizup.identity.domain.port.out.UserRepositoryPort;
@@ -25,8 +25,8 @@ public class UserQueryHandler {
     }
 
     @QueryHandler
-    public PageResult<User> handle(UserQuery.UserSearchQuery query) {
-        return userReadPort.findAll(query);
+    public SearchResponse<User> handle(UserQuery.UserSearchQuery query) {
+        return userReadPort.findAll(query.request());
     }
 
     @QueryHandler

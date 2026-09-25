@@ -1,7 +1,7 @@
 package io.github.quizup.identity.infrastructure.out.persistence.adapter;
 
-import io.github.quizup.microservice.core.domain.model.search.PageResult;
-import io.github.quizup.microservice.core.domain.model.search.SearchCriteria;
+import io.github.quizup.microservice.core.infrastructure.in.api.request.SearchRequest;
+import io.github.quizup.microservice.core.infrastructure.in.api.response.SearchResponse;
 import io.github.quizup.microservice.core.infrastructure.adapter.AnnotationSearchableEntity;
 import io.github.quizup.microservice.core.infrastructure.adapter.JpaSearchAdapter;
 import io.github.quizup.identity.domain.model.User;
@@ -40,8 +40,8 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
-    public PageResult<User> findAll(SearchCriteria searchCriteria) {
-        return userJpaSearchAdapter.findAll(searchCriteria, UserEntityMapper::toDomain);
+    public SearchResponse<User> findAll(SearchRequest request) {
+        return userJpaSearchAdapter.findAll(request).map(UserEntityMapper::toDomain);
     }
 
     @Override

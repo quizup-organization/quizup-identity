@@ -1,7 +1,7 @@
 package io.github.quizup.identity.domain.port.out;
 
-import io.github.quizup.microservice.core.domain.model.search.PageResult;
-import io.github.quizup.microservice.core.domain.model.search.SearchCriteria;
+import io.github.quizup.microservice.core.infrastructure.in.api.request.SearchRequest;
+import io.github.quizup.microservice.core.infrastructure.in.api.response.SearchResponse;
 import io.github.quizup.identity.domain.model.User;
 
 import java.util.Optional;
@@ -35,7 +35,7 @@ public interface UserRepositoryPort {
     Optional<User> findByEmail(String email);
 
 
-    PageResult<User> findAll(SearchCriteria searchCriteria);
+    SearchResponse<User> findAll(SearchRequest request);
 
     /**
      * Vérifie si un utilisateur existe avec cet email.

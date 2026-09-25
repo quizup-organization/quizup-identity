@@ -1,7 +1,7 @@
 package io.github.quizup.identity.application.service;
 
 import io.github.quizup.microservice.core.infrastructure.axon.QueryResponseTypes;
-import io.github.quizup.microservice.core.domain.model.search.PageResult;
+import io.github.quizup.microservice.core.infrastructure.in.api.response.SearchResponse;
 import io.github.quizup.identity.domain.exception.UserProblems;
 import io.github.quizup.identity.domain.model.User;
 import io.github.quizup.identity.domain.port.in.CheckUserUseCase;
@@ -54,8 +54,8 @@ public class UserQueryService implements GetUserUseCase, FindUserUseCase, CheckU
     }
 
     @Override
-    public CompletableFuture<PageResult<User>> search(UserQuery.UserSearchQuery query) {
-        return queryGateway.query(query, QueryResponseTypes.pageResultOf(User.class));
+    public CompletableFuture<SearchResponse<User>> search(UserQuery.UserSearchQuery query) {
+        return queryGateway.query(query, QueryResponseTypes.searchResponseOf(User.class));
     }
 }
 
