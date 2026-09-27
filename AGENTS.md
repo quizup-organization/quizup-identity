@@ -66,8 +66,8 @@ jamais de JWT.
 
 ### API JSON d'authentification (`AuthController`)
 
-Conforme au contrat REST commun (`best-practices/.backend/rest-api.md`) : ressources plutôt que
-verbes.
+REST orienté ressources plutôt que verbes (`GET /{id}` adressable, transitions
+`POST /{id}/{action}`).
 
 - `POST /api/auth/login-codes` `{email}` -> `202` (toujours, anti-énumération ; envoie le code OTP)
 - `POST /api/auth/sessions` `{email, code}` -> `201 {userId,email}` + `Location /api/auth/sessions/current` | `401` (code invalide/expiré)
