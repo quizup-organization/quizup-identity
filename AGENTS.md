@@ -14,7 +14,7 @@
 `oidc-react`/`oidc-client-ts` côté client) et gestion de l'identité **immuable**
 (email, providers sociaux liés). **Aucun mot de passe** : l'authentification est
 **passwordless** (code à usage unique OTP envoyé par email) ou **sociale** (Google).
-**Aucun nom d'affichage** ici : le profil modifiable (`displayName`, `bio`, `country`)
+**Aucun pseudonyme** ici : le profil modifiable (`pseudonym`, `bio`, `country`)
 vit dans `quizup-profile` (créé par saga sur `UserRegisteredEvent`).
 
 **Package** : `io.github.quizup.identity`
