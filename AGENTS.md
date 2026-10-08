@@ -4,7 +4,7 @@
 > de saga). Architecture : Axon Framework (CQRS/EDA) + JPA (projections) + Spring Security
 > OAuth2 (Authorization Server / IdP).
 > Pour les règles de patterns : [
-`../../best-practices/.backend/hexagonal-architecture.md`](../../best-practices/.backend/hexagonal-architecture.md).
+`../../best-practices/.backend/folder-structure.md`](../../best-practices/.backend/folder-structure.md).
 
 ---
 
