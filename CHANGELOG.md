@@ -1,3 +1,9 @@
+## [2.2.1](https://github.com/quizup-organization/quizup-identity/compare/v2.2.0...v2.2.1) (2026-10-11)
+
+### Bug Fixes
+
+* **auth:** preserve third-party authorization request through SPA login ([b64d0f0](https://github.com/quizup-organization/quizup-identity/commit/b64d0f015cbdafbdf0924511d238146575a04c48))
+
 ## [2.2.0](https://github.com/quizup-organization/quizup-identity/compare/v2.1.1...v2.2.0) (2026-10-11)
 
 ### Features
