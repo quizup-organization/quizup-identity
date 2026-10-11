@@ -1,3 +1,9 @@
+## [2.1.0](https://github.com/quizup-organization/quizup-identity/compare/v2.0.0...v2.1.0) (2026-10-11)
+
+### Features
+
+* **auth:** emit UserLoggedInEvent on every successful login ([5c1cd79](https://github.com/quizup-organization/quizup-identity/commit/5c1cd7921f8dfb8b2073594a044380c3913e0e39))
+
 ## [2.0.0](https://github.com/quizup-organization/quizup-identity/compare/v1.8.3...v2.0.0) (2026-09-25)
 
 ### ⚠ BREAKING CHANGES
