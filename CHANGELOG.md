@@ -1,3 +1,9 @@
+## [2.1.1](https://github.com/quizup-organization/quizup-identity/compare/v2.1.0...v2.1.1) (2026-10-11)
+
+### Bug Fixes
+
+* **identity:** sessions web/mobile 365 jours (refresh token) ([b01b787](https://github.com/quizup-organization/quizup-identity/commit/b01b787135aaf103cf218ff18df3efb3472a2bd8))
+
 ## [2.1.0](https://github.com/quizup-organization/quizup-identity/compare/v2.0.0...v2.1.0) (2026-10-11)
 
 ### Features
