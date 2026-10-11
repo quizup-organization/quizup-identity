@@ -31,4 +31,14 @@ public interface UserEvent {
             Instant linkedAt
     ) implements UserEvent {
     }
+
+    /**
+     * Événement émis à chaque connexion réussie (OTP ou sociale), y compris la première
+     * connexion qui suit la création du compte.
+     */
+    record UserLoggedInEvent(
+            String userId,
+            Instant loggedInAt
+    ) implements UserEvent {
+    }
 }

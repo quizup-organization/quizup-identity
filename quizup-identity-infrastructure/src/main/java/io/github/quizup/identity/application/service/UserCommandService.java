@@ -2,6 +2,7 @@ package io.github.quizup.identity.application.service;
 
 import io.github.quizup.identity.domain.port.in.RegisterUserUseCase;
 import io.github.quizup.identity.domain.port.in.LinkSocialProviderUseCase;
+import io.github.quizup.identity.domain.port.in.RecordUserLoginUseCase;
 import io.github.quizup.identity.domain.command.UserCommand;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
  * Service applicatif - Implémente RegisterUserUseCase.
  */
 @Service
-public class UserCommandService implements RegisterUserUseCase, LinkSocialProviderUseCase {
+public class UserCommandService implements RegisterUserUseCase, LinkSocialProviderUseCase, RecordUserLoginUseCase {
 
     private final CommandGateway commandGateway;
 
@@ -32,6 +33,11 @@ public class UserCommandService implements RegisterUserUseCase, LinkSocialProvid
 
     @Override
     public CompletableFuture<Void> linkSocialProvider(UserCommand.LinkSocialProviderCommand command) {
+        return commandGateway.send(command);
+    }
+
+    @Override
+    public CompletableFuture<Void> recordLogin(UserCommand.RecordUserLoginCommand command) {
         return commandGateway.send(command);
     }
 }

@@ -29,4 +29,12 @@ public interface UserCommand {
             SocialProvider provider
     ) implements UserCommand {
     }
+
+    /**
+     * Enregistre une connexion réussie d'un utilisateur existant.
+     */
+    record RecordUserLoginCommand(
+            @TargetAggregateIdentifier String userId
+    ) implements UserCommand {
+    }
 }

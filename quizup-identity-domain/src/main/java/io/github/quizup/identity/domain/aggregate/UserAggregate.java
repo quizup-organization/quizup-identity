@@ -33,6 +33,8 @@ public class UserAggregate {
 
     private Set<SocialProvider> linkedSocialAccounts;
 
+    private Instant lastLoginAt;
+
     // Constructeur par défaut requis par Axon
     protected UserAggregate() {
     }
@@ -83,6 +85,16 @@ public class UserAggregate {
         );
     }
 
+    @CommandHandler
+    public void handle(UserCommand.RecordUserLoginCommand command) {
+        AggregateLifecycle.apply(
+                new UserEvent.UserLoggedInEvent(
+                        command.userId(),
+                        Instant.now()
+                )
+        );
+    }
+
     @EventSourcingHandler
     public void on(UserEvent.UserRegisteredEvent event) {
         this.linkedSocialAccounts = new HashSet<>();
@@ -100,6 +112,11 @@ public class UserAggregate {
             this.linkedSocialAccounts = new HashSet<>();
         }
         this.linkedSocialAccounts.add(event.provider());
+    }
+
+    @EventSourcingHandler
+    public void on(UserEvent.UserLoggedInEvent event) {
+        this.lastLoginAt = event.loggedInAt();
     }
 
     private void validateProvider(String userId, SocialProvider provider) {

@@ -1,6 +1,7 @@
 package io.github.quizup.identity.infrastructure.security;
 
 import io.github.quizup.identity.domain.port.in.LinkSocialProviderUseCase;
+import io.github.quizup.identity.domain.port.in.RecordUserLoginUseCase;
 import io.github.quizup.identity.domain.port.in.RegisterUserUseCase;
 import io.github.quizup.identity.domain.model.SocialProvider;
 import io.github.quizup.identity.domain.model.User;
@@ -30,15 +31,18 @@ public class OAuth2UserServiceImpl extends OidcUserService {
     private final UserRepositoryPort userRepositoryPort;
     private final RegisterUserUseCase registerUserUseCase;
     private final LinkSocialProviderUseCase linkSocialProviderUseCase;
+    private final RecordUserLoginUseCase recordUserLoginUseCase;
     private final Roles roles;
 
     public OAuth2UserServiceImpl(UserRepositoryPort userRepositoryPort,
                                  RegisterUserUseCase registerUserUseCase,
                                  LinkSocialProviderUseCase linkSocialProviderUseCase,
+                                 RecordUserLoginUseCase recordUserLoginUseCase,
                                  Roles roles) {
         this.userRepositoryPort = userRepositoryPort;
         this.registerUserUseCase = registerUserUseCase;
         this.linkSocialProviderUseCase = linkSocialProviderUseCase;
+        this.recordUserLoginUseCase = recordUserLoginUseCase;
         this.roles = roles;
     }
 
@@ -69,6 +73,7 @@ public class OAuth2UserServiceImpl extends OidcUserService {
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             linkIfNeeded(user, socialProvider);
+            recordUserLogin(user.userId());
             return principal(user.userId(), user.email(), oidcUser, attributes);
         }
 
@@ -82,9 +87,11 @@ public class OAuth2UserServiceImpl extends OidcUserService {
             User existing = userRepositoryPort.findByEmail(email)
                     .orElseThrow(() -> new OAuth2AuthenticationException("Failed to create user: " + exception.getMessage()));
             linkIfNeeded(existing, socialProvider);
+            recordUserLogin(existing.userId());
             return principal(existing.userId(), existing.email(), oidcUser, attributes);
         }
 
+        recordUserLogin(userId);
         return principal(userId, email, oidcUser, attributes);
     }
 
@@ -108,6 +115,14 @@ public class OAuth2UserServiceImpl extends OidcUserService {
             linkSocialProviderUseCase.linkSocialProvider(user.userId(), socialProvider).join();
         } catch (Exception exception) {
             logger.warn("Failed to link provider {} to user {}: {}", socialProvider, user.userId(), exception.getMessage());
+        }
+    }
+
+    private void recordUserLogin(String userId) {
+        try {
+            recordUserLoginUseCase.recordLogin(userId).join();
+        } catch (Exception exception) {
+            logger.warn("Failed to record login for user {}: {}", userId, exception.getMessage());
         }
     }
 }

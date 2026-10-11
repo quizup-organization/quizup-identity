@@ -103,6 +103,7 @@ Exposés **sur le bus Axon**, sans REST (sauf l'API JSON d'auth) :
 - `RegisterUserUseCase` — enregistrement sans credential (passwordless/système) ou via provider social
 - `PasswordlessAuthUseCase` — demande + vérification du code OTP (implémenté par `PasswordlessAuthService`)
 - `LinkSocialProviderUseCase` — liaison d'un provider à un compte existant
+- `RecordUserLoginUseCase` — enregistrement d'une connexion réussie (OTP ou sociale, 1re connexion incluse)
 - `GetUserUseCase`, `FindUserUseCase`, `CheckUserUseCase`, `SearchUserUseCase`
 
 **Queries** (`domain/query/UserQuery.java`) : `UserSearchQuery`, `UserExistsByIdQuery`,
@@ -117,6 +118,8 @@ Exposés **sur le bus Axon**, sans REST (sauf l'API JSON d'auth) :
 - Événement `UserEvent.UserRegisteredEvent(userId, email, provider, createdAt)` ->
   consommé par `quizup-profile` (saga `CreateProfileSaga`).
 - Événement `UserEvent.SocialProviderLinkedEvent(userId, provider, linkedAt)` (mise à jour locale).
+- Événement `UserEvent.UserLoggedInEvent(userId, loggedInAt)` — émis à chaque connexion réussie
+  (OTP ou sociale, y compris la première), exploité par les métriques Axon (`quizup_axon_events_published_total`).
 - Les queries `UserQuery.*` restent exposées sur le bus.
 
 **Ports sortants locaux** : `LoginCodeRepositoryPort` (OTP), `EmailSenderPort` (Resend),

@@ -6,6 +6,7 @@ import io.github.quizup.identity.domain.event.UserEvent;
 import io.github.quizup.identity.domain.exception.UserProblems;
 import io.github.quizup.identity.domain.model.SocialProvider;
 import io.github.quizup.identity.domain.port.out.EmailClaimPort;
+import org.axonframework.modelling.command.AggregateNotFoundException;
 import org.axonframework.test.aggregate.AggregateTestFixture;
 import org.junit.jupiter.api.Test;
 
@@ -101,5 +102,25 @@ class UserAggregateTest {
                         "user-5", "user@quizup.dev", SocialProvider.GOOGLE, Instant.parse("2026-01-01T00:00:00Z")))
                 .when(new UserCommand.LinkSocialProviderCommand("user-5", SocialProvider.GOOGLE))
                 .expectNoEvents();
+    }
+
+    @Test
+    void recordLogin_appliesUserLoggedInEvent() {
+        fixture.given(new UserEvent.UserRegisteredEvent(
+                        "user-7", "user@quizup.dev", null, Instant.parse("2026-01-01T00:00:00Z")))
+                .when(new UserCommand.RecordUserLoginCommand("user-7"))
+                .expectEventsMatching(QuizUpAxonMatchers.singlePayloadMatching(
+                        UserEvent.UserLoggedInEvent.class,
+                        e -> {
+                            UserEvent.UserLoggedInEvent event = (UserEvent.UserLoggedInEvent) e;
+                            return event.userId().equals("user-7") && event.loggedInAt() != null;
+                        }));
+    }
+
+    @Test
+    void recordLogin_onUnknownUser_throwsAggregateNotFound() {
+        fixture.givenNoPriorActivity()
+                .when(new UserCommand.RecordUserLoginCommand("unknown-user"))
+                .expectException(AggregateNotFoundException.class);
     }
 }

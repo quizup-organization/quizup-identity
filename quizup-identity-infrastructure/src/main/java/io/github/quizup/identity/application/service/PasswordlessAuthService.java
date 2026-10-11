@@ -6,6 +6,7 @@ import io.github.quizup.identity.domain.model.LoginCodeRules;
 import io.github.quizup.identity.domain.model.User;
 import io.github.quizup.identity.domain.port.in.FindUserUseCase;
 import io.github.quizup.identity.domain.port.in.PasswordlessAuthUseCase;
+import io.github.quizup.identity.domain.port.in.RecordUserLoginUseCase;
 import io.github.quizup.identity.domain.port.in.RegisterUserUseCase;
 import io.github.quizup.identity.domain.port.out.EmailSenderPort;
 import io.github.quizup.identity.domain.port.out.LoginCodeRepositoryPort;
@@ -39,6 +40,7 @@ public class PasswordlessAuthService implements PasswordlessAuthUseCase {
     private final EmailSenderPort emailSender;
     private final FindUserUseCase findUserUseCase;
     private final RegisterUserUseCase registerUserUseCase;
+    private final RecordUserLoginUseCase recordUserLoginUseCase;
     private final PasswordEncoder passwordEncoder;
     private final String devFixedCode;
     private final SecureRandom secureRandom = new SecureRandom();
@@ -47,12 +49,14 @@ public class PasswordlessAuthService implements PasswordlessAuthUseCase {
                                    EmailSenderPort emailSender,
                                    FindUserUseCase findUserUseCase,
                                    RegisterUserUseCase registerUserUseCase,
+                                   RecordUserLoginUseCase recordUserLoginUseCase,
                                    PasswordEncoder passwordEncoder,
                                    AppProperties properties) {
         this.loginCodeRepository = loginCodeRepository;
         this.emailSender = emailSender;
         this.findUserUseCase = findUserUseCase;
         this.registerUserUseCase = registerUserUseCase;
+        this.recordUserLoginUseCase = recordUserLoginUseCase;
         this.passwordEncoder = passwordEncoder;
         this.devFixedCode = properties.auth().devFixedCode();
     }
@@ -118,6 +122,8 @@ public class PasswordlessAuthService implements PasswordlessAuthUseCase {
         User user = findUserUseCase.findByEmail(normalized).join()
                 .orElseGet(() -> createUser(normalized));
 
+        recordUserLogin(user.userId());
+
         return new AuthenticatedUser(user.userId(), user.email());
     }
 
@@ -133,6 +139,14 @@ public class PasswordlessAuthService implements PasswordlessAuthUseCase {
         }
 
         return new User(userId, email, java.util.Set.of(), Instant.now());
+    }
+
+    private void recordUserLogin(String userId) {
+        try {
+            recordUserLoginUseCase.recordLogin(userId).join();
+        } catch (Exception exception) {
+            logger.warn("Failed to record login for user {}: {}", userId, exception.getMessage());
+        }
     }
 
     private String generateCode() {
