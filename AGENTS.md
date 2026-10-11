@@ -141,3 +141,4 @@ Exposés **sur le bus Axon**, sans REST (sauf l'API JSON d'auth) :
 | `app.security.oauth2.success-redirect-uri` / `failure-redirect-uri` | Retour social |
 | `app.security.cors.allowed-origins` | Origine SPA (credentials) |
 | `app.security.session.cookie-*` | Cookie `AUTH_TX` (name/same-site/secure) |
+| `spring.security.oauth2.authorizationserver.client.{web,mobile}.token` | Tokens des clients SPA/mobile : access `PT1H`, refresh **`P365D`** (sessions longues), rotation `reuse-refresh-tokens: false` — clients construits en mémoire au démarrage (rollout image suffisant) |
