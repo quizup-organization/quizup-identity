@@ -82,6 +82,8 @@ REST orienté ressources plutôt que verbes (`GET /{id}` adressable, transitions
 
 En cas de non-authentification sur `/oauth2/authorize` : `302` vers la SPA
 (`app.security.login-page-uri`) pour HTML, sinon `401` JSON. **Jamais de page `/login` serveur.**
+L'URL d'autorisation d'origine est transmise en `?continue=` (`SpaLoginRedirectEntryPoint`) :
+la SPA la reprend après login pour rejoindre le client tiers (Grafana, ArgoCD, mobile…).
 
 ### Routes internes
 

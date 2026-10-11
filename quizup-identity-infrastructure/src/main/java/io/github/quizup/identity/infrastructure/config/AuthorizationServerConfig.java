@@ -6,6 +6,7 @@ import io.github.quizup.identity.infrastructure.properties.AppProperties;
 import io.github.quizup.identity.infrastructure.security.OAuth2UserServiceImpl;
 import io.github.quizup.identity.infrastructure.security.PublicClientRefreshTokenAuthenticationConverter;
 import io.github.quizup.identity.infrastructure.security.PublicClientRefreshTokenAuthenticationProvider;
+import io.github.quizup.identity.infrastructure.security.SpaLoginRedirectEntryPoint;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +28,6 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -93,7 +93,7 @@ public class AuthorizationServerConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .exceptionHandling(exceptions -> exceptions
                         .defaultAuthenticationEntryPointFor(
-                                new LoginUrlAuthenticationEntryPoint(loginPageUri),
+                                new SpaLoginRedirectEntryPoint(loginPageUri),
                                 new MediaTypeRequestMatcher(MediaType.TEXT_HTML))
                         .defaultAuthenticationEntryPointFor(
                                 new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
