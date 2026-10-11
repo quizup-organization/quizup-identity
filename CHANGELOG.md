@@ -1,3 +1,9 @@
+## [2.2.0](https://github.com/quizup-organization/quizup-identity/compare/v2.1.1...v2.2.0) (2026-10-11)
+
+### Features
+
+* **auth:** add OIDC client for ArgoCD ([a37df61](https://github.com/quizup-organization/quizup-identity/commit/a37df61f4c4d6dce10b62dbc1627028d3b8ab116))
+
 ## [2.1.1](https://github.com/quizup-organization/quizup-identity/compare/v2.1.0...v2.1.1) (2026-10-11)
 
 ### Bug Fixes
