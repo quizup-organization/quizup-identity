@@ -31,6 +31,12 @@ spring:
                 - https://grafana.quizup.cnadjim.fr/login/generic_oauth
               post-logout-redirect-uris:
                 - https://grafana.quizup.cnadjim.fr
+          argocd:
+            registration:
+              redirect-uris:
+                - https://argocd.quizup.cnadjim.fr/auth/callback
+              post-logout-redirect-uris:
+                - https://argocd.quizup.cnadjim.fr
           swagger:
             registration:
               redirect-uris:

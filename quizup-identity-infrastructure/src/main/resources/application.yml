@@ -74,6 +74,20 @@ spring:
               refresh-token-time-to-live: P30D
               reuse-refresh-tokens: false
 
+          # Client ArgoCD (GitOps) — confidentiel (client_secret_basic + PKCE).
+          argocd:
+            registration:
+              client-id: argocd
+              client-secret: ${QUIZUP_ARGOCD_CLIENT_SECRET:}
+              client-authentication-methods: [ client_secret_basic ]
+              authorization-grant-types: [ authorization_code, refresh_token ]
+              scopes: [ openid, profile, email ]
+            require-proof-key: true
+            token:
+              access-token-time-to-live: PT4H
+              refresh-token-time-to-live: P30D
+              reuse-refresh-tokens: false
+
           # Client Swagger UI (Authorization Code, sans refresh token).
           swagger:
             registration:
