@@ -1,3 +1,9 @@
+## [2.4.0](https://github.com/quizup-organization/quizup-identity/compare/v2.3.1...v2.4.0) (2026-10-12)
+
+### Features
+
+* **console:** consume quizup-sdk 4.5.2 (DLQ Axon par défaut + agent console) ([3b0a681](https://github.com/quizup-organization/quizup-identity/commit/3b0a681dcdc37090f0fff869e2761c581f8738ce))
+
 ## [2.3.1](https://github.com/quizup-organization/quizup-identity/compare/v2.3.0...v2.3.1) (2026-10-12)
 
 ### Bug Fixes
