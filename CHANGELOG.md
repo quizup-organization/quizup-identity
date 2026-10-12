@@ -1,3 +1,9 @@
+## [2.6.0](https://github.com/quizup-organization/quizup-identity/compare/v2.5.0...v2.6.0) (2026-10-12)
+
+### Features
+
+* **console:** consume quizup-sdk 4.7.0 (lag, commandes en vol, snapshots, scheduled) ([2bfffa5](https://github.com/quizup-organization/quizup-identity/commit/2bfffa5fb5ffcf22d02ac23b0e7c804881ea877d))
+
 ## [2.5.0](https://github.com/quizup-organization/quizup-identity/compare/v2.4.0...v2.5.0) (2026-10-12)
 
 ### Features
