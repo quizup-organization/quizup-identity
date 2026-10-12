@@ -41,6 +41,12 @@ spring:
                 - quizup://callback
                 - exp://127.0.0.1:8081/--/
                 - http://localhost:8081
+          console:
+            registration:
+              redirect-uris:
+                - http://localhost:5174/callback
+              post-logout-redirect-uris:
+                - http://localhost:5174
           grafana:
             registration:
               redirect-uris:

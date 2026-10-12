@@ -60,6 +60,16 @@ spring:
             require-proof-key: true
             token: *token-web-mobile
 
+          # Client console d'exploitation (SPA admin « quizup-web-console »).
+          console:
+            registration:
+              client-id: console
+              client-authentication-methods: [ none ]
+              authorization-grant-types: [ authorization_code, refresh_token ]
+              scopes: [ openid, profile, email ]
+            require-proof-key: true
+            token: *token-web-mobile
+
           # Client Grafana (observabilité) — confidentiel (client_secret_basic + PKCE).
           grafana:
             registration:
@@ -120,7 +130,7 @@ app:
       success-redirect-uri: ${QUIZUP_APP_OAUTH2_SUCCESS_URI:http://localhost:5173/login?social=success}
       failure-redirect-uri: ${QUIZUP_APP_OAUTH2_FAILURE_URI:http://localhost:5173/login?error}
     cors:
-      allowed-origins: ${QUIZUP_CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:8081}
+      allowed-origins: ${QUIZUP_CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:5174,http://localhost:8081}
     session:
       cookie-same-site: ${QUIZUP_SESSION_COOKIE_SAME_SITE:Lax}
       cookie-secure: ${QUIZUP_SESSION_COOKIE_SECURE:false}
