@@ -1,3 +1,9 @@
+## [2.5.0](https://github.com/quizup-organization/quizup-identity/compare/v2.4.0...v2.5.0) (2026-10-12)
+
+### Features
+
+* **console:** consume quizup-sdk 4.6.0 (build-info + API interne event store/scheduled) ([4888d2b](https://github.com/quizup-organization/quizup-identity/commit/4888d2b27abafb54faf2f382a96bf3a0264d57c8))
+
 ## [2.4.0](https://github.com/quizup-organization/quizup-identity/compare/v2.3.1...v2.4.0) (2026-10-12)
 
 ### Features
