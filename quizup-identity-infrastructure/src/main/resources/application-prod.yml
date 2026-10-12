@@ -28,8 +28,10 @@ spring:
           console:
             registration:
               redirect-uris:
+                - https://console.quizup.local/callback
                 - https://console.quizup.cnadjim.fr/callback
               post-logout-redirect-uris:
+                - https://console.quizup.local
                 - https://console.quizup.cnadjim.fr
           grafana:
             registration:
