@@ -1,3 +1,9 @@
+## [2.3.0](https://github.com/quizup-organization/quizup-identity/compare/v2.2.1...v2.3.0) (2026-10-12)
+
+### Features
+
+* **oidc:** client public console (PKCE) pour la console d'exploitation ([db54608](https://github.com/quizup-organization/quizup-identity/commit/db54608973a44426e1179f1c20e283f597e2bf4c))
+
 ## [2.2.1](https://github.com/quizup-organization/quizup-identity/compare/v2.2.0...v2.2.1) (2026-10-11)
 
 ### Bug Fixes
