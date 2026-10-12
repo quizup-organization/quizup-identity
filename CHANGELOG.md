@@ -1,3 +1,9 @@
+## [2.3.1](https://github.com/quizup-organization/quizup-identity/compare/v2.3.0...v2.3.1) (2026-10-12)
+
+### Bug Fixes
+
+* **oidc:** redirects console.quizup.local pour le client console (parallèle aux autres clients) ([8d55adc](https://github.com/quizup-organization/quizup-identity/commit/8d55adca46f38d11868a1e5704aed994f7d1ed57))
+
 ## [2.3.0](https://github.com/quizup-organization/quizup-identity/compare/v2.2.1...v2.3.0) (2026-10-12)
 
 ### Features
