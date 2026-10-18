@@ -133,9 +133,18 @@ public class ResendEmailAdapter implements EmailSenderPort {
         return switch (reason) {
             case HARASSMENT -> "harcèlement";
             case HATE_SPEECH -> "discours haineux";
+            case THREATS -> "menaces ou violence";
+            case IMPERSONATION -> "usurpation d'identité";
+            case PRIVACY_VIOLATION -> "atteinte à la vie privée";
             case INAPPROPRIATE_CONTENT -> "contenu inapproprié";
-            case CHEATING -> "triche";
             case SPAM -> "spam";
+            case COPYRIGHT -> "atteinte au droit d'auteur";
+            case CHEATING -> "triche";
+            case EXPLOIT_ABUSE -> "exploitation de faille";
+            case MULTIPLE_ACCOUNTS -> "comptes multiples ou contournement";
+            case TERMS_VIOLATION -> "violation des conditions d'utilisation";
+            case MINOR_SAFETY -> "mise en danger de mineurs";
+            case FRAUD -> "fraude ou arnaque";
             case OTHER -> "autre";
         };
     }
