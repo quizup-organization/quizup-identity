@@ -1,3 +1,9 @@
+## [2.9.0](https://github.com/quizup-organization/quizup-identity/compare/v2.8.0...v2.9.0) (2026-10-18)
+
+### Features
+
+* **identity:** expand account suspension reasons ([1d88970](https://github.com/quizup-organization/quizup-identity/commit/1d88970765c2318d6bbc3c1517d07f68255095bf))
+
 ## [2.8.0](https://github.com/quizup-organization/quizup-identity/compare/v2.7.1...v2.8.0) (2026-10-18)
 
 ### Features
