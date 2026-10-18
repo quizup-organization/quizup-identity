@@ -5,6 +5,8 @@ import io.github.quizup.identity.domain.model.User;
 import io.github.quizup.identity.domain.model.UserSuspension;
 import io.github.quizup.identity.infrastructure.out.persistence.entity.UserEntity;
 
+import java.util.HashSet;
+
 /**
  * Mapper infrastructure - Convertit entre UserEntity (JPA) et User (domaine).
  * Seule classe autorisée à connaitre les deux types simultanément.
@@ -48,7 +50,9 @@ public final class UserEntityMapper {
         UserEntity userEntity = new UserEntity();
         userEntity.setUserId(user.userId());
         userEntity.setEmail(user.email());
-        userEntity.setLinkedSocialAccounts(user.linkedSocialAccounts());
+        userEntity.setLinkedSocialAccounts(user.linkedSocialAccounts() == null
+                ? new HashSet<>()
+                : user.linkedSocialAccounts());
         userEntity.setCreatedAt(user.createdAt());
         userEntity.setStatus(user.status());
 

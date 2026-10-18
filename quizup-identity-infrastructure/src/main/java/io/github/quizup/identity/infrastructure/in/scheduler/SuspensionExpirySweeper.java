@@ -40,20 +40,25 @@ public class SuspensionExpirySweeper {
         Instant now = Instant.now();
         List<String> userIds = userRepository.findExpiredSuspensionIds(now, BATCH_SIZE);
         for (String userId : userIds) {
-            commandGateway.send(new UserCommand.ReinstateUserCommand(
-                            userId,
-                            SuspensionReinstatementReason.EXPIRED,
-                            "Suspension expirée",
-                            QuizUpConstants.SYSTEM_USER_ID,
-                            now))
-                    .whenComplete((result, error) -> {
-                        if (error != null) {
-                            logger.warn("Unable to reinstate expired suspension for user {}: {}",
-                                    userId, error.getMessage());
-                        } else {
-                            logger.info("Expired suspension reinstated for user {}", userId);
-                        }
-                    });
+            try {
+                commandGateway.send(new UserCommand.ReinstateUserCommand(
+                                userId,
+                                SuspensionReinstatementReason.EXPIRED,
+                                "Suspension expirée",
+                                QuizUpConstants.SYSTEM_USER_ID,
+                                now))
+                        .whenComplete((result, error) -> {
+                            if (error != null) {
+                                logger.warn("Unable to reinstate expired suspension for user {}: {}",
+                                        userId, error.getMessage());
+                            } else {
+                                logger.info("Expired suspension reinstated for user {}", userId);
+                            }
+                        });
+            } catch (RuntimeException error) {
+                logger.warn("Unable to dispatch expired-suspension reinstatement for user {}: {}",
+                        userId, error.getMessage());
+            }
         }
     }
 }
