@@ -1,3 +1,9 @@
+## [2.7.1](https://github.com/quizup-organization/quizup-identity/compare/v2.7.0...v2.7.1) (2026-10-18)
+
+### Bug Fixes
+
+* **identity:** harden suspension access revocation ([3ecca51](https://github.com/quizup-organization/quizup-identity/commit/3ecca51534983e6614fbb87f101baad24d6794f1))
+
 ## [2.7.0](https://github.com/quizup-organization/quizup-identity/compare/v2.6.0...v2.7.0) (2026-10-18)
 
 ### Features
