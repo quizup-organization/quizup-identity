@@ -1,3 +1,9 @@
+## [2.8.0](https://github.com/quizup-organization/quizup-identity/compare/v2.7.1...v2.8.0) (2026-10-18)
+
+### Features
+
+* **identity:** support admin user catalogue filters ([888beea](https://github.com/quizup-organization/quizup-identity/commit/888beeab03d303cb1615162442d8b0cb1d6de490))
+
 ## [2.7.1](https://github.com/quizup-organization/quizup-identity/compare/v2.7.0...v2.7.1) (2026-10-18)
 
 ### Bug Fixes
