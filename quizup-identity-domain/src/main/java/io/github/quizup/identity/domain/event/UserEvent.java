@@ -1,6 +1,8 @@
 package io.github.quizup.identity.domain.event;
 
 import io.github.quizup.identity.domain.model.SocialProvider;
+import io.github.quizup.identity.domain.model.SuspensionReinstatementReason;
+import io.github.quizup.identity.domain.model.UserSuspensionReason;
 
 import java.time.Instant;
 
@@ -39,6 +41,38 @@ public interface UserEvent {
     record UserLoggedInEvent(
             String userId,
             Instant loggedInAt
+    ) implements UserEvent {
+    }
+
+    /**
+     * Événement émis lorsqu'un compte est suspendu.
+     *
+     * <p>L'email est porté par l'événement pour que les consommateurs (email, notification)
+     * soient autosuffisants. {@code suspendedUntil} nul = suspension définitive.</p>
+     */
+    record UserSuspendedEvent(
+            String userId,
+            String email,
+            String suspensionId,
+            UserSuspensionReason reason,
+            String note,
+            String suspendedBy,
+            Instant suspendedAt,
+            Instant suspendedUntil
+    ) implements UserEvent {
+    }
+
+    /**
+     * Événement émis lorsqu'un compte est réintégré (manuellement ou par expiration).
+     */
+    record UserReinstatedEvent(
+            String userId,
+            String email,
+            String suspensionId,
+            SuspensionReinstatementReason reason,
+            String note,
+            String reinstatedBy,
+            Instant reinstatedAt
     ) implements UserEvent {
     }
 }

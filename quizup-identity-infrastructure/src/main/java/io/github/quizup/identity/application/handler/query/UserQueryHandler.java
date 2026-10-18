@@ -3,11 +3,13 @@ package io.github.quizup.identity.application.handler.query;
 import io.github.quizup.microservice.core.infrastructure.in.api.response.SearchResponse;
 import io.github.quizup.identity.domain.exception.UserProblems;
 import io.github.quizup.identity.domain.model.User;
+import io.github.quizup.identity.domain.model.UserAccountStatus;
 import io.github.quizup.identity.domain.port.out.UserRepositoryPort;
 import io.github.quizup.identity.domain.query.UserQuery;
 import org.axonframework.queryhandling.QueryHandler;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -53,5 +55,30 @@ public class UserQueryHandler {
     @QueryHandler
     public Optional<User> handle(UserQuery.FindUserByEmailQuery query) {
         return userReadPort.findByEmail(query.email());
+    }
+
+    @QueryHandler
+    public List<User> handle(UserQuery.GetUsersByIdsQuery query) {
+        return userReadPort.findAllByIds(query.userIds());
+    }
+
+    @QueryHandler
+    public UserAccountStatus handle(UserQuery.GetUserAccountStatusQuery query) {
+        User user = userReadPort.findById(query.userId())
+                .orElseThrow(() -> new UserProblems.UserNotFoundProblem(query.userId()));
+        return new UserAccountStatus(
+                user.userId(),
+                user.status(),
+                user.suspension() == null ? null : user.suspension().suspendedUntil());
+    }
+
+    @QueryHandler
+    public List<UserAccountStatus> handle(UserQuery.GetUserAccountStatusesQuery query) {
+        return userReadPort.findAllByIds(query.userIds()).stream()
+                .map(user -> new UserAccountStatus(
+                        user.userId(),
+                        user.status(),
+                        user.suspension() == null ? null : user.suspension().suspendedUntil()))
+                .toList();
     }
 }

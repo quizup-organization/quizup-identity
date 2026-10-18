@@ -1,7 +1,11 @@
 package io.github.quizup.identity.domain.command;
 
 import io.github.quizup.identity.domain.model.SocialProvider;
+import io.github.quizup.identity.domain.model.SuspensionReinstatementReason;
+import io.github.quizup.identity.domain.model.UserSuspensionReason;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
+
+import java.time.Instant;
 
 public interface UserCommand {
 
@@ -35,6 +39,34 @@ public interface UserCommand {
      */
     record RecordUserLoginCommand(
             @TargetAggregateIdentifier String userId
+    ) implements UserCommand {
+    }
+
+    /**
+     * Suspend un compte. {@code suspendedUntil} nul = suspension définitive.
+     *
+     * <p>La décision (motif, durée, acteur) est préparée par l'appelant : l'agrégat ne fait
+     * aucun I/O et se contente de valider les invariants.</p>
+     */
+    record SuspendUserCommand(
+            @TargetAggregateIdentifier String userId,
+            UserSuspensionReason reason,
+            String note,
+            String requestedBy,
+            Instant suspendedUntil,
+            Instant suspendedAt
+    ) implements UserCommand {
+    }
+
+    /**
+     * Réintègre un compte suspendu. Idempotent : sans effet si le compte est déjà actif.
+     */
+    record ReinstateUserCommand(
+            @TargetAggregateIdentifier String userId,
+            SuspensionReinstatementReason reason,
+            String note,
+            String requestedBy,
+            Instant reinstatedAt
     ) implements UserCommand {
     }
 }

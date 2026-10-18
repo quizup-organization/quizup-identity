@@ -1,6 +1,7 @@
 package io.github.quizup.identity.application.service;
 
 import io.github.quizup.identity.domain.exception.UserProblems;
+import io.github.quizup.identity.domain.exception.UserReportProblems;
 import io.github.quizup.identity.domain.model.LoginCode;
 import io.github.quizup.identity.domain.model.LoginCodeRules;
 import io.github.quizup.identity.domain.model.User;
@@ -121,6 +122,13 @@ public class PasswordlessAuthService implements PasswordlessAuthUseCase {
 
         User user = findUserUseCase.findByEmail(normalized).join()
                 .orElseGet(() -> createUser(normalized));
+
+        if (user.suspended(now)) {
+            logger.warn("Login refused for suspended user: userId={}", user.userId());
+            throw new UserReportProblems.AccountSuspendedProblem(
+                    user.userId(),
+                    user.suspension() == null ? null : user.suspension().suspendedUntil());
+        }
 
         recordUserLogin(user.userId());
 

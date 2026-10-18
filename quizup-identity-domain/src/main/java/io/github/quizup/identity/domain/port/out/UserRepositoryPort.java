@@ -4,6 +4,8 @@ import io.github.quizup.microservice.core.infrastructure.in.api.request.SearchRe
 import io.github.quizup.microservice.core.infrastructure.in.api.response.SearchResponse;
 import io.github.quizup.identity.domain.model.User;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -34,6 +36,10 @@ public interface UserRepositoryPort {
      */
     Optional<User> findByEmail(String email);
 
+    /**
+     * Résolution en lot (recherche admin, badges publics).
+     */
+    List<User> findAllByIds(List<String> userIds);
 
     SearchResponse<User> findAll(SearchRequest request);
 
@@ -52,5 +58,14 @@ public interface UserRepositoryPort {
      * @return true si l'utilisateur existe
      */
     boolean existsById(String userId);
-}
 
+    /**
+     * Identifiants des comptes dont la suspension temporaire est échue.
+     */
+    List<String> findExpiredSuspensionIds(Instant now, int limit);
+
+    /**
+     * Compte les comptes effectivement suspendus à l'instant donné.
+     */
+    long countSuspended(Instant now);
+}

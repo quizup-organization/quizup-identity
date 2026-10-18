@@ -63,7 +63,16 @@ public record AppProperties(
     }
 
     public record Auth(
-            @DefaultValue("") String devFixedCode) {
+            @DefaultValue("") String devFixedCode,
+            @DefaultValue Mobile mobile) {
+
+        /**
+         * Paramètres de la surface d'authentification native mobile.
+         */
+        public record Mobile(
+                @DefaultValue("mobile") String clientId,
+                @DefaultValue("") String googleClientId) {
+        }
     }
 
     public record SeedData(

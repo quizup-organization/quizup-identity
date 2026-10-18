@@ -1,5 +1,6 @@
 package io.github.quizup.identity.infrastructure.out.mail;
 
+import io.github.quizup.identity.domain.model.UserSuspensionReason;
 import io.github.quizup.identity.domain.port.out.EmailSenderPort;
 import io.github.quizup.identity.infrastructure.properties.AppProperties;
 import org.slf4j.Logger;
@@ -10,7 +11,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 
 import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -63,6 +68,41 @@ public class ResendEmailAdapter implements EmailSenderPort {
         logger.info("Login code sent to {}", email);
     }
 
+    @Override
+    public void sendAccountSuspended(String email, UserSuspensionReason reason, Instant suspendedUntil) {
+        String reasonLabel = reasonLabel(reason);
+        String untilLabel = suspendedUntil == null
+                ? "définitivement"
+                : "jusqu'au " + DATE_FORMAT.format(suspendedUntil);
+
+        if (!StringUtils.hasText(apiKey)) {
+            logger.warn("Mail API key not configured - suspension notice for {}: {} ({})",
+                    email, reasonLabel, untilLabel);
+            return;
+        }
+
+        Map<String, Object> body = Map.of(
+                "from", from,
+                "to", List.of(email),
+                "subject", "Ton compte QuizUp a été suspendu",
+                "html", renderSuspensionHtml(reasonLabel, untilLabel)
+        );
+
+        restClient.post()
+                .uri(baseUrl + "/emails")
+                .header("Authorization", "Bearer " + apiKey)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
+                .retrieve()
+                .toBodilessEntity();
+
+        logger.info("Suspension notice sent to {}", email);
+    }
+
+    private static final DateTimeFormatter DATE_FORMAT =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy 'à' HH:mm", Locale.FRENCH)
+                    .withZone(ZoneId.of("Europe/Paris"));
+
     private String renderHtml(String code, long minutes) {
         return """
                 <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto">
@@ -73,5 +113,30 @@ public class ResendEmailAdapter implements EmailSenderPort {
                   demande, ignorez cet email.</p>
                 </div>
                 """.formatted(code, minutes);
+    }
+
+    private String renderSuspensionHtml(String reasonLabel, String untilLabel) {
+        return """
+                <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto">
+                  <h2>Compte suspendu</h2>
+                  <p>Ton compte QuizUp est suspendu %s.</p>
+                  <p><strong>Motif :</strong> %s</p>
+                  <p>Si tu penses qu'il s'agit d'une erreur, tu peux répondre à cet email.</p>
+                </div>
+                """.formatted(untilLabel, reasonLabel);
+    }
+
+    private static String reasonLabel(UserSuspensionReason reason) {
+        if (reason == null) {
+            return "non précisé";
+        }
+        return switch (reason) {
+            case HARASSMENT -> "harcèlement";
+            case HATE_SPEECH -> "discours haineux";
+            case INAPPROPRIATE_CONTENT -> "contenu inapproprié";
+            case CHEATING -> "triche";
+            case SPAM -> "spam";
+            case OTHER -> "autre";
+        };
     }
 }

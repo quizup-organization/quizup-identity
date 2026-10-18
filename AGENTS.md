@@ -19,25 +19,39 @@ vit dans `quizup-profile` (créé par saga sur `UserRegisteredEvent`).
 
 **Package** : `io.github.quizup.identity`
 
-**Sans UI hébergée** : aucune page HTML/Thymeleaf. Toute l'UX est pilotée par la SPA/mobile.
-La session interactive temporaire est établie par la **vérification du code OTP** (API JSON),
-puis le pipeline OIDC standard émet les tokens.
+**Sans UI hébergée** : aucune page HTML/Thymeleaf. Toute l'UX est pilotée par la SPA web
+(login OTP + OIDC navigateur) et par le mobile (écran natif OTP + Google). La surface
+applicative d'auth est **préfixée par client** (`/api/auth/web/**`, `/api/auth/mobile/**`) ;
+les endpoints du protocole OIDC (`/oauth2/**`) restent standard et non préfixés.
 
 ### Pipeline d'authentification
 
 ```text
-SPA /login
-  -> POST /api/auth/login-codes     (JSON {email}, credentials: include) -> 202
-  -> email contenant un code à 6 chiffres (Resend)
-  -> POST /api/auth/sessions        (JSON {email, code}) -> 201 {userId,email} + Location /api/auth/sessions/current
-  -> session temporaire PostgreSQL (Spring Session JDBC, cookie opaque AUTH_TX)
-  -> GET /oauth2/authorize           (session trouvée -> authorization code)
-  -> POST /oauth2/token + code_verifier
-  -> access_token + id_token
+Web
+  POST /api/auth/web/request-login-code   {email} -> 202
+  email contenant un code à 6 chiffres (Resend)
+  POST /api/auth/web/login-with-code      {email, code} -> 200 {userId,email} + cookie AUTH_TX
+  GET  /oauth2/authorize                  (session trouvée -> authorization code)
+  POST /oauth2/token + code_verifier      -> access_token + id_token
+
+Mobile
+  POST /api/auth/mobile/request-login-code {email} -> 202
+  POST /api/auth/mobile/login-with-code    {email, code} -> session (access + refresh tokens)
+  ou POST /api/auth/mobile/login-with-google {idToken} -> session (access + refresh tokens)
+  POST /oauth2/token (grant_type=refresh_token) -> rotation
+  POST /api/auth/mobile/logout             {refreshToken} -> 204
 ```
 
-Le premier `verify-code` **crée le compte** (plus d'étape `/register`). L'API JSON ne retourne
-jamais de JWT.
+Le premier login **crée le compte** (plus d'étape `/register`). L'API web ne retourne jamais de
+JWT ; les endpoints mobiles retournent directement les tokens OAuth2 (mêmes JWT/claims que le
+flux web, sans ID token).
+
+Les sessions mobiles sont persistées dans `oauth2_authorization` avec le grant
+`urn:quizup:native` ; le refresh standard `/oauth2/token` les fait tourner et le logout les
+révoque. Le client public `mobile` conserve aussi ses redirect URIs (`quizup://callback`) pour
+les anciens APK qui utilisent encore le flux navigateur : leur login reste fonctionnel via la
+page web mise à jour, mais leur logout appelle l'ancien endpoint supprimé (la session locale
+est purgée, le refresh token n'est plus révoqué côté identity).
 
 ### Compte système unique
 
@@ -64,14 +78,29 @@ jamais de JWT.
 
 ## 2. Endpoints
 
-### API JSON d'authentification (`AuthController`)
+### API d'authentification par client
 
-REST orienté ressources plutôt que verbes (`GET /{id}` adressable, transitions
-`POST /{id}/{action}`).
+> **Exception auth** : les endpoints sont volontairement **orientés action** pour que le cas
+> soit lisible à la lecture (`request-login-code`, `login-with-code`, `login-with-google`,
+> `start-google-login`, `logout`). Les autres ressources du service restent orientées
+> ressources (`GET /{id}`, transitions `POST /{id}/{action}`).
 
-- `POST /api/auth/login-codes` `{email}` -> `202` (toujours, anti-énumération ; envoie le code OTP)
-- `POST /api/auth/sessions` `{email, code}` -> `201 {userId,email}` + `Location /api/auth/sessions/current` | `401` (code invalide/expiré)
-- `DELETE /api/auth/sessions/current` -> `204` (invalide la session)
+**Web** (`WebAuthController`) — session cookie + OIDC navigateur :
+
+- `POST /api/auth/web/request-login-code` `{email}` -> `202` (anti-énumération)
+- `POST /api/auth/web/login-with-code` `{email, code}` -> `200 {userId,email}` + cookie `AUTH_TX`
+- `GET /api/auth/web/start-google-login` -> `302 /oauth2/authorization/google`
+- `POST /api/auth/web/logout` `{refreshToken?}` -> `204`
+
+**Mobile** (`MobileAuthController`) — tokens natifs, sans cookie :
+
+- `POST /api/auth/mobile/request-login-code` `{email}` -> `202`
+- `POST /api/auth/mobile/login-with-code` `{email, code}` -> `200 {userId,email,accessToken,refreshToken,tokenType,expiresIn}`
+- `POST /api/auth/mobile/login-with-google` `{idToken}` -> même réponse
+- `POST /api/auth/mobile/logout` `{refreshToken}` -> `204`
+
+Erreurs : `ProblemDetail` (`type`, `title`, `detail`, `status`) ; `401` code/Google invalide,
+`403` compte suspendu (`suspendedUntil`), `503` Google indisponible.
 
 ### Serveur d'autorisation OIDC (Spring Security standard)
 
@@ -83,7 +112,8 @@ REST orienté ressources plutôt que verbes (`GET /{id}` adressable, transitions
 En cas de non-authentification sur `/oauth2/authorize` : `302` vers la SPA
 (`app.security.login-page-uri`) pour HTML, sinon `401` JSON. **Jamais de page `/login` serveur.**
 L'URL d'autorisation d'origine est transmise en `?continue=` (`SpaLoginRedirectEntryPoint`) :
-la SPA la reprend après login pour rejoindre le client tiers (Grafana, ArgoCD, mobile…).
+la SPA la reprend après login pour rejoindre le client tiers (Grafana, ArgoCD, anciens APK
+mobiles…).
 
 ### Routes internes
 
@@ -109,7 +139,30 @@ Exposés **sur le bus Axon**, sans REST (sauf l'API JSON d'auth) :
 - `GetUserUseCase`, `FindUserUseCase`, `CheckUserUseCase`, `SearchUserUseCase`
 
 **Queries** (`domain/query/UserQuery.java`) : `UserSearchQuery`, `UserExistsByIdQuery`,
-`UserExistsByEmailQuery`, `GetUserQuery`, `FindUserQuery`, `FindUserByEmailQuery`.
+`UserExistsByEmailQuery`, `GetUserQuery`, `FindUserQuery`, `FindUserByEmailQuery`,
+`GetUsersByIdsQuery`, `GetUserAccountStatusQuery`, `GetUserAccountStatusesQuery`.
+
+### Suspension de compte et signalements de joueurs
+
+- **Statut de compte** porté par `UserAggregate` : `AccountStatus` (`ACTIVE|SUSPENDED`),
+  `UserSuspension` (motif, note interne, acteur, `suspendedUntil` `null` = définitive,
+  réintégration). Commandes `SuspendUserCommand` / `ReinstateUserCommand` ; événements
+  `UserSuspendedEvent` / `UserReinstatedEvent` (email inclus, autosuffisants).
+- **Garde-fous** : compte système (`SYSTEM_USER_ID`) jamais suspendable ; double suspension
+  refusée ; réintégration idempotente ; une suspension temporaire échue est **effectivement
+  active** même avant le passage du balayeur (`AccountStatusRules`).
+- **Expiration** : `SuspensionExpirySweeper` (`@Scheduled`) envoie une réintégration système
+  `EXPIRED` pour les échéances dépassées. La lecture du statut ne bloque jamais un compte dont
+  l'échéance est passée.
+- **Application** : OTP (`verifyCode`), login social, générateur de tokens (`invalid_grant`
+  `account_suspended` pour code/refresh), suppression des sessions `AUTH_TX` et autorisations
+  OAuth2 à la suspension. Un email est envoyé au joueur (la note reste interne).
+- **Signalements** : `UserReportThreadAggregate` (thread déterministe joueur signalé × signalant,
+  un seul `OPEN`), snapshot pseudonyme/avatar + contexte `PROFILE|GAME`. Queries
+  `UserReportQuery.*` (détail, liste par cible, file groupée, stats).
+- **Migration** `V4__account_suspension_and_user_reports.sql` (`user_entry` + `user_report` +
+  `user_report_reason`, index unique partiel `(thread_id) WHERE status='OPEN'`).
+- **Pas d'auto-suspension** : la décision est exclusivement admin.
 
 ---
 
@@ -122,6 +175,11 @@ Exposés **sur le bus Axon**, sans REST (sauf l'API JSON d'auth) :
 - Événement `UserEvent.SocialProviderLinkedEvent(userId, provider, linkedAt)` (mise à jour locale).
 - Événement `UserEvent.UserLoggedInEvent(userId, loggedInAt)` — émis à chaque connexion réussie
   (OTP ou sociale, y compris la première), exploité par les métriques Axon (`quizup_axon_events_published_total`).
+- Événement `UserEvent.UserSuspendedEvent(userId, email, suspensionId, reason, note, suspendedBy,
+  suspendedAt, suspendedUntil)` — consommé par `quizup-notification` (inbox obligatoire) et le BFF
+  (invalidation de cache + fermeture des accès).
+- Événement `UserEvent.UserReinstatedEvent(userId, email, suspensionId, reason, note, reinstatedBy,
+  reinstatedAt)` — consommé par le BFF.
 - Les queries `UserQuery.*` restent exposées sur le bus.
 
 **Ports sortants locaux** : `LoginCodeRepositoryPort` (OTP), `EmailSenderPort` (Resend),
@@ -136,8 +194,11 @@ Exposés **sur le bus Axon**, sans REST (sauf l'API JSON d'auth) :
 | `app.authorization-server.issuer` | Issuer OIDC public (doit matcher l'authority de la SPA) |
 | `app.authorization-server.audience` | Claim `aud` (optionnel) |
 | `app.authorization-server.admin-emails` | Allowlist d'emails → `ROLE_ADMIN` (env `QUIZUP_ADMIN_EMAILS`) |
+| `quizup.account-suspension.sweep-interval-ms` | Fréquence du balayeur des suspensions temporaires échues (défaut 60 000 ms) |
 | `app.mail.api-key` / `app.mail.from` / `app.mail.base-url` | Envoi des codes OTP via Resend (`QUIZUP_MAIL_API_KEY`, …) |
 | `app.auth.dev-fixed-code` | Code OTP fixe réservé au profil `local`/E2E |
+| `app.auth.mobile.client-id` | Client OAuth2 public utilisé par les endpoints natifs (`mobile`) |
+| `app.auth.mobile.google-client-id` | Client OAuth2 **Web** Google : audience des ID tokens du SDK natif |
 | `app.jwk.jwk-set` | JWK Set JSON partagée (secret `QUIZUP_IDENTITY_JWK`) |
 | `app.security.login-page-uri` | SPA login (entry point non authentifié) |
 | `app.security.oauth2.success-redirect-uri` / `failure-redirect-uri` | Retour social |

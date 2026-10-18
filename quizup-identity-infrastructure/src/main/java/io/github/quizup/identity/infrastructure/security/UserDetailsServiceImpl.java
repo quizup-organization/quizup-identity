@@ -4,10 +4,13 @@ import io.github.quizup.identity.domain.model.User;
 import io.github.quizup.identity.domain.port.out.UserRepositoryPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
 
 /**
  * Service de recuperation des details utilisateur.
@@ -33,6 +36,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         User user = userRepositoryPort.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
+        if (user.suspended(Instant.now())) {
+            throw new LockedException("Account suspended: " + user.userId());
+        }
 
         logger.debug("User loaded successfully: userId={}", user.userId());
 

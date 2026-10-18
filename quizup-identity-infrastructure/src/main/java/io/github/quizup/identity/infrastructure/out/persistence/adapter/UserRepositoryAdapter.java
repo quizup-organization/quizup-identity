@@ -4,13 +4,17 @@ import io.github.quizup.microservice.core.infrastructure.in.api.request.SearchRe
 import io.github.quizup.microservice.core.infrastructure.in.api.response.SearchResponse;
 import io.github.quizup.microservice.core.infrastructure.adapter.AnnotationSearchableEntity;
 import io.github.quizup.microservice.core.infrastructure.adapter.JpaSearchAdapter;
+import io.github.quizup.identity.domain.model.AccountStatus;
 import io.github.quizup.identity.domain.model.User;
 import io.github.quizup.identity.domain.port.out.UserRepositoryPort;
 import io.github.quizup.identity.infrastructure.out.persistence.entity.UserEntity;
 import io.github.quizup.identity.infrastructure.out.persistence.mapper.UserEntityMapper;
 import io.github.quizup.identity.infrastructure.out.persistence.repository.UserJpaRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -40,6 +44,16 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
+    public List<User> findAllByIds(List<String> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return List.of();
+        }
+        return userJpaRepository.findAllByUserIdIn(userIds).stream()
+                .map(UserEntityMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public SearchResponse<User> findAll(SearchRequest request) {
         return userJpaSearchAdapter.findAll(request).map(UserEntityMapper::toDomain);
     }
@@ -52,5 +66,16 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     @Override
     public boolean existsById(String userId) {
         return userJpaRepository.existsById(userId);
+    }
+
+    @Override
+    public List<String> findExpiredSuspensionIds(Instant now, int limit) {
+        return userJpaRepository.findExpiredSuspensionUserIds(
+                AccountStatus.SUSPENDED, now, PageRequest.of(0, Math.max(1, limit)));
+    }
+
+    @Override
+    public long countSuspended(Instant now) {
+        return userJpaRepository.countEffectivelySuspended(AccountStatus.SUSPENDED, now);
     }
 }

@@ -43,6 +43,8 @@ class AppPropertiesTest {
             assertThat(properties.jwk().jwkSet()).isEmpty();
             assertThat(properties.jwk().generateIfMissing()).isFalse();
             assertThat(properties.auth().devFixedCode()).isEmpty();
+            assertThat(properties.auth().mobile().clientId()).isEqualTo("mobile");
+            assertThat(properties.auth().mobile().googleClientId()).isEmpty();
             assertThat(properties.seedData().enabled()).isFalse();
         });
     }
@@ -53,6 +55,8 @@ class AppPropertiesTest {
                         "app.authorization-server.admin-emails=admin@quizup.local",
                         "app.security.session.cookie-secure=true",
                         "app.security.cors.allowed-origins=https://app.quizup.local,https://app2.quizup.local",
+                        "app.auth.mobile.client-id=mobile-test",
+                        "app.auth.mobile.google-client-id=google-client-id",
                         "app.seed-data.enabled=true")
                 .run(context -> {
                     AppProperties properties = context.getBean(AppProperties.class);
@@ -61,6 +65,8 @@ class AppPropertiesTest {
                     assertThat(properties.security().session().cookieSecure()).isTrue();
                     assertThat(properties.security().cors().allowedOrigins())
                             .containsExactly("https://app.quizup.local", "https://app2.quizup.local");
+                    assertThat(properties.auth().mobile().clientId()).isEqualTo("mobile-test");
+                    assertThat(properties.auth().mobile().googleClientId()).isEqualTo("google-client-id");
                     assertThat(properties.seedData().enabled()).isTrue();
                 });
     }

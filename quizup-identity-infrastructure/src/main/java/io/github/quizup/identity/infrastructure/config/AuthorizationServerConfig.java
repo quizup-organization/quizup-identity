@@ -21,6 +21,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -28,7 +29,6 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
@@ -172,7 +172,15 @@ public class AuthorizationServerConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.oidcUserService(oAuth2UserService))
                         .successHandler(new SimpleUrlAuthenticationSuccessHandler(oauth2SuccessRedirectUri))
-                        .failureHandler(new SimpleUrlAuthenticationFailureHandler(oauth2FailureRedirectUri)));
+                        .failureHandler((request, response, exception) -> {
+                            String target = oauth2FailureRedirectUri;
+                            if (exception instanceof OAuth2AuthenticationException oauth2Exception
+                                    && "account_suspended".equals(
+                                    oauth2Exception.getError().getErrorCode())) {
+                                target += (target.contains("?") ? "&" : "?") + "error=account_suspended";
+                            }
+                            response.sendRedirect(target);
+                        }));
 
         return http.build();
     }

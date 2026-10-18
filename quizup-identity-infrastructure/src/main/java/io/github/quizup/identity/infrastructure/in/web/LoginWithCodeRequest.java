@@ -5,10 +5,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 /**
- * Vérification d'un code de connexion à usage unique.
+ * Connexion avec le code OTP reçu par email.
  */
-public record VerifyCodeRequest(
+public record LoginWithCodeRequest(
         @NotBlank @Email String email,
-        @NotBlank @Pattern(regexp = "\\d{6}", message = "Le code doit contenir 6 chiffres") String code
+        @NotBlank
+        @Pattern(regexp = "\\d{6}", message = "Le code doit contenir 6 chiffres")
+        String code
 ) {
 }

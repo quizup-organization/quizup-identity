@@ -110,7 +110,18 @@ spring:
               access-token-time-to-live: PT1H
               reuse-refresh-tokens: false
 
+quizup:
+  account-suspension:
+    # Intervalle du balayeur de fins de suspension temporaire (millisecondes).
+    sweep-interval-ms: 60000
+
 app:
+  auth:
+    # Surface d'authentification native mobile (OTP + Google).
+    mobile:
+      client-id: ${QUIZUP_MOBILE_CLIENT_ID:mobile}
+      # Client OAuth2 « Web » Google : audience des ID tokens émis par le SDK natif.
+      google-client-id: ${QUIZUP_OAUTH2_GOOGLE_CLIENT_ID:270229696016-9u3916ckfcludqv77uiebgir65j3eurk.apps.googleusercontent.com}
   # Seed par défaut : compte système (identity), profil système (profile), sujets starters (theme).
   seed-data:
     enabled: true

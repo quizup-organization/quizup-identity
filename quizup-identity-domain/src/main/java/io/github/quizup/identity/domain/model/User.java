@@ -14,6 +14,21 @@ public record User(
         String userId,
         String email,
         Set<SocialProvider> linkedSocialAccounts,
-        Instant createdAt
+        Instant createdAt,
+        AccountStatus status,
+        UserSuspension suspension
 ) {
+
+    public User {
+        status = status == null ? AccountStatus.ACTIVE : status;
+    }
+
+    /** Constructeur de compatibilité pour les comptes jamais suspendus. */
+    public User(String userId, String email, Set<SocialProvider> linkedSocialAccounts, Instant createdAt) {
+        this(userId, email, linkedSocialAccounts, createdAt, AccountStatus.ACTIVE, null);
+    }
+
+    public boolean suspended(Instant now) {
+        return AccountStatusRules.isSuspended(status, suspension == null ? null : suspension.suspendedUntil(), now);
+    }
 }
