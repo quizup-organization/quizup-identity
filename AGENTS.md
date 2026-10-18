@@ -142,6 +142,13 @@ Exposés **sur le bus Axon**, sans REST (sauf l'API JSON d'auth) :
 `UserExistsByEmailQuery`, `GetUserQuery`, `FindUserQuery`, `FindUserByEmailQuery`,
 `GetUsersByIdsQuery`, `GetUserAccountStatusQuery`, `GetUserAccountStatusesQuery`.
 
+`UserSearchQuery` accepte deux filtres admin supplémentaires, traités par
+`UserRepositoryAdapter` (hors champs `@Searchable`) : `status` ∈ `ACTIVE|SUSPENDED` (suspension
+**effective** — une échéance dépassée vaut actif, même avant le balayeur) et `reported` booléen
+(présence d'un signalement `OPEN`). Ils alimentent le catalogue paginé de la console admin ; la
+recherche par pseudonyme reste résolue côté BFF via `quizup-profile` (`userId IN (…)`). Ce support
+doit être déployé **avant** le BFF qui émet ces filtres.
+
 ### Suspension de compte et signalements de joueurs
 
 - **Statut de compte** porté par `UserAggregate` : `AccountStatus` (`ACTIVE|SUSPENDED`),
