@@ -1,3 +1,9 @@
+## [2.7.0](https://github.com/quizup-organization/quizup-identity/compare/v2.6.0...v2.7.0) (2026-10-18)
+
+### Features
+
+* **identity:** add account moderation and native mobile authentication ([65beb9e](https://github.com/quizup-organization/quizup-identity/commit/65beb9e1efb489bdf11b9d7ede564bb579efddb5))
+
 ## [2.6.0](https://github.com/quizup-organization/quizup-identity/compare/v2.5.0...v2.6.0) (2026-10-12)
 
 ### Features
