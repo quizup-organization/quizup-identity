@@ -1,3 +1,9 @@
+## [2.10.0](https://github.com/quizup-organization/quizup-identity/compare/v2.9.0...v2.10.0) (2026-10-19)
+
+### Features
+
+* **identity:** ajoute la connexion Facebook web et mobile ([7fbecec](https://github.com/quizup-organization/quizup-identity/commit/7fbececc527cfa22fc83ab86b687bbf331e5438a))
+
 ## [2.9.0](https://github.com/quizup-organization/quizup-identity/compare/v2.8.0...v2.9.0) (2026-10-18)
 
 ### Features
