@@ -1,3 +1,9 @@
+## [2.10.1](https://github.com/quizup-organization/quizup-identity/compare/v2.10.0...v2.10.1) (2026-10-19)
+
+### Bug Fixes
+
+* **identity:** mappe les erreurs Facebook text/javascript en 401 ([76403da](https://github.com/quizup-organization/quizup-identity/commit/76403da6866bc8fb9342de43e9767e73c039ad6e))
+
 ## [2.10.0](https://github.com/quizup-organization/quizup-identity/compare/v2.9.0...v2.10.0) (2026-10-19)
 
 ### Features
