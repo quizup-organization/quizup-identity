@@ -13,14 +13,14 @@
 **IdP** de la plateforme : serveur d'autorisation OIDC (**Authorization Code + PKCE**,
 `oidc-react`/`oidc-client-ts` côté client) et gestion de l'identité **immuable**
 (email, providers sociaux liés). **Aucun mot de passe** : l'authentification est
-**passwordless** (code à usage unique OTP envoyé par email) ou **sociale** (Google).
+**passwordless** (code à usage unique OTP envoyé par email) ou **sociale** (Google, Facebook).
 **Aucun pseudonyme** ici : le profil modifiable (`pseudonym`, `bio`, `country`)
 vit dans `quizup-profile` (créé par saga sur `UserRegisteredEvent`).
 
 **Package** : `io.github.quizup.identity`
 
 **Sans UI hébergée** : aucune page HTML/Thymeleaf. Toute l'UX est pilotée par la SPA web
-(login OTP + OIDC navigateur) et par le mobile (écran natif OTP + Google). La surface
+(login OTP + OIDC navigateur) et par le mobile (écran natif OTP + Google + Facebook). La surface
 applicative d'auth est **préfixée par client** (`/api/auth/web/**`, `/api/auth/mobile/**`) ;
 les endpoints du protocole OIDC (`/oauth2/**`) restent standard et non préfixés.
 
@@ -38,9 +38,16 @@ Mobile
   POST /api/auth/mobile/request-login-code {email} -> 202
   POST /api/auth/mobile/login-with-code    {email, code} -> session (access + refresh tokens)
   ou POST /api/auth/mobile/login-with-google {idToken} -> session (access + refresh tokens)
+  ou POST /api/auth/mobile/login-with-facebook {idToken,nonce} (iOS)
+                                             ou {accessToken} (Android) -> session
   POST /oauth2/token (grant_type=refresh_token) -> rotation
   POST /api/auth/mobile/logout             {refreshToken} -> 204
 ```
+
+Facebook web utilise le flux OAuth2 classique + Graph API (pas OIDC). Le mobile iOS
+utilise Limited Login (ID token OIDC), le mobile Android le login classique (access token
+vérifié côté serveur via `/debug_token` + `/me`). Si Facebook ne retourne pas d'email,
+la connexion est refusée et le client propose le repli OTP.
 
 Le premier login **crée le compte** (plus d'étape `/register`). L'API web ne retourne jamais de
 JWT ; les endpoints mobiles retournent directement les tokens OAuth2 (mêmes JWT/claims que le
@@ -90,6 +97,7 @@ est purgée, le refresh token n'est plus révoqué côté identity).
 - `POST /api/auth/web/request-login-code` `{email}` -> `202` (anti-énumération)
 - `POST /api/auth/web/login-with-code` `{email, code}` -> `200 {userId,email}` + cookie `AUTH_TX`
 - `GET /api/auth/web/start-google-login` -> `302 /oauth2/authorization/google`
+- `GET /api/auth/web/start-facebook-login` -> `302 /oauth2/authorization/facebook`
 - `POST /api/auth/web/logout` `{refreshToken?}` -> `204`
 
 **Mobile** (`MobileAuthController`) — tokens natifs, sans cookie :
@@ -97,16 +105,19 @@ est purgée, le refresh token n'est plus révoqué côté identity).
 - `POST /api/auth/mobile/request-login-code` `{email}` -> `202`
 - `POST /api/auth/mobile/login-with-code` `{email, code}` -> `200 {userId,email,accessToken,refreshToken,tokenType,expiresIn}`
 - `POST /api/auth/mobile/login-with-google` `{idToken}` -> même réponse
+- `POST /api/auth/mobile/login-with-facebook` `{idToken,nonce}` (iOS) ou `{accessToken}` (Android) -> même réponse
 - `POST /api/auth/mobile/logout` `{refreshToken}` -> `204`
 
-Erreurs : `ProblemDetail` (`type`, `title`, `detail`, `status`) ; `401` code/Google invalide,
-`403` compte suspendu (`suspendedUntil`), `503` Google indisponible.
+Erreurs : `ProblemDetail` (`type`, `title`, `detail`, `status`) ; `401` code/Google/Facebook invalide,
+`403` compte suspendu (`suspendedUntil`), `422` email Facebook manquant,
+`503` Google/Facebook indisponible.
 
 ### Serveur d'autorisation OIDC (Spring Security standard)
 
 - `/oauth2/authorize`, `/oauth2/token`, `/oauth2/jwks`, `/oauth2/revoke`, `/oauth2/introspect`
 - `/.well-known/openid-configuration`, `/connect/logout`
-- Social : `/oauth2/authorization/google` -> `/login/oauth2/code/google`
+- Social : `/oauth2/authorization/google` -> `/login/oauth2/code/google` et
+  `/oauth2/authorization/facebook` -> `/login/oauth2/code/facebook`
   (succès -> redirection SPA `app.security.oauth2.success-redirect-uri`).
 
 En cas de non-authentification sur `/oauth2/authorize` : `302` vers la SPA
@@ -206,6 +217,8 @@ doit être déployé **avant** le BFF qui émet ces filtres.
 | `app.auth.dev-fixed-code` | Code OTP fixe réservé au profil `local`/E2E |
 | `app.auth.mobile.client-id` | Client OAuth2 public utilisé par les endpoints natifs (`mobile`) |
 | `app.auth.mobile.google-client-id` | Client OAuth2 **Web** Google : audience des ID tokens du SDK natif |
+| `app.auth.mobile.facebook-app-id` | App ID Facebook : audience des ID tokens Limited Login (iOS) et des access tokens Android |
+| `spring.security.oauth2.client.registration.facebook` | Client Facebook web (OAuth2 + Graph, scopes `public_profile,email`) — secret via `QUIZUP_OAUTH2_FACEBOOK_SECRET` |
 | `app.jwk.jwk-set` | JWK Set JSON partagée (secret `QUIZUP_IDENTITY_JWK`) |
 | `app.security.login-page-uri` | SPA login (entry point non authentifié) |
 | `app.security.oauth2.success-redirect-uri` / `failure-redirect-uri` | Retour social |

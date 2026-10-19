@@ -45,6 +45,7 @@ class AppPropertiesTest {
             assertThat(properties.auth().devFixedCode()).isEmpty();
             assertThat(properties.auth().mobile().clientId()).isEqualTo("mobile");
             assertThat(properties.auth().mobile().googleClientId()).isEmpty();
+            assertThat(properties.auth().mobile().facebookAppId()).isEmpty();
             assertThat(properties.seedData().enabled()).isFalse();
         });
     }
@@ -57,6 +58,7 @@ class AppPropertiesTest {
                         "app.security.cors.allowed-origins=https://app.quizup.local,https://app2.quizup.local",
                         "app.auth.mobile.client-id=mobile-test",
                         "app.auth.mobile.google-client-id=google-client-id",
+                        "app.auth.mobile.facebook-app-id=facebook-app-id",
                         "app.seed-data.enabled=true")
                 .run(context -> {
                     AppProperties properties = context.getBean(AppProperties.class);
@@ -67,6 +69,7 @@ class AppPropertiesTest {
                             .containsExactly("https://app.quizup.local", "https://app2.quizup.local");
                     assertThat(properties.auth().mobile().clientId()).isEqualTo("mobile-test");
                     assertThat(properties.auth().mobile().googleClientId()).isEqualTo("google-client-id");
+                    assertThat(properties.auth().mobile().facebookAppId()).isEqualTo("facebook-app-id");
                     assertThat(properties.seedData().enabled()).isTrue();
                 });
     }

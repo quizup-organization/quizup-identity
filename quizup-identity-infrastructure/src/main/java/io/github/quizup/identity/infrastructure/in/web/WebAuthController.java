@@ -82,6 +82,16 @@ public class WebAuthController {
     }
 
     /**
+     * Démarre le login Facebook web : redirige vers le flux OAuth2 navigateur standard.
+     */
+    @GetMapping("/start-facebook-login")
+    public ResponseEntity<Void> startFacebookLogin() {
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create("/oauth2/authorization/facebook"))
+                .build();
+    }
+
+    /**
      * Ferme la session web et révoque l'autorisation OAuth2 si un refresh token est fourni.
      */
     @PostMapping("/logout")

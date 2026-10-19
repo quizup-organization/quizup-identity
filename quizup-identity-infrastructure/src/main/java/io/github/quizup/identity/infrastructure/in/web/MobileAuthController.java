@@ -6,6 +6,9 @@ import io.github.quizup.identity.domain.model.User;
 import io.github.quizup.identity.domain.port.in.PasswordlessAuthUseCase;
 import io.github.quizup.identity.infrastructure.properties.AppProperties;
 import io.github.quizup.identity.infrastructure.security.AuthorizationRevocationService;
+import io.github.quizup.identity.infrastructure.security.FacebookAccessTokenVerifier;
+import io.github.quizup.identity.infrastructure.security.FacebookIdTokenVerifier;
+import io.github.quizup.identity.infrastructure.security.FacebookIdentity;
 import io.github.quizup.identity.infrastructure.security.GoogleIdTokenVerifier;
 import io.github.quizup.identity.infrastructure.security.NativeTokenIssuer;
 import io.github.quizup.identity.infrastructure.security.Roles;
@@ -39,6 +42,8 @@ public class MobileAuthController {
     private final PasswordlessAuthUseCase passwordlessAuthUseCase;
     private final SocialUserService socialUserService;
     private final GoogleIdTokenVerifier googleIdTokenVerifier;
+    private final FacebookIdTokenVerifier facebookIdTokenVerifier;
+    private final FacebookAccessTokenVerifier facebookAccessTokenVerifier;
     private final NativeTokenIssuer nativeTokenIssuer;
     private final AuthorizationRevocationService authorizationRevocationService;
     private final Roles roles;
@@ -47,6 +52,8 @@ public class MobileAuthController {
     public MobileAuthController(PasswordlessAuthUseCase passwordlessAuthUseCase,
                                 SocialUserService socialUserService,
                                 GoogleIdTokenVerifier googleIdTokenVerifier,
+                                FacebookIdTokenVerifier facebookIdTokenVerifier,
+                                FacebookAccessTokenVerifier facebookAccessTokenVerifier,
                                 NativeTokenIssuer nativeTokenIssuer,
                                 AuthorizationRevocationService authorizationRevocationService,
                                 Roles roles,
@@ -54,6 +61,8 @@ public class MobileAuthController {
         this.passwordlessAuthUseCase = passwordlessAuthUseCase;
         this.socialUserService = socialUserService;
         this.googleIdTokenVerifier = googleIdTokenVerifier;
+        this.facebookIdTokenVerifier = facebookIdTokenVerifier;
+        this.facebookAccessTokenVerifier = facebookAccessTokenVerifier;
         this.nativeTokenIssuer = nativeTokenIssuer;
         this.authorizationRevocationService = authorizationRevocationService;
         this.roles = roles;
@@ -91,6 +100,23 @@ public class MobileAuthController {
                 googleIdTokenVerifier.verify(request.idToken());
         User user = socialUserService.resolveOrCreate(identity.email(), SocialProvider.GOOGLE);
         logger.info("Mobile session established via Google: userId={}", user.userId());
+        return tokenResponse(user.userId(), user.email());
+    }
+
+    /**
+     * Vérifie l'identité Facebook native et retourne une session mobile.
+     *
+     * <p>iOS (Limited Login) fournit un ID token OIDC + nonce ; Android (login
+     * classique) fournit un access token vérifié auprès de Graph.</p>
+     */
+    @PostMapping("/login-with-facebook")
+    public ResponseEntity<MobileLoginResponse> loginWithFacebook(
+            @Valid @RequestBody LoginWithFacebookRequest request) {
+        FacebookIdentity identity = StringUtils.hasText(request.idToken())
+                ? facebookIdTokenVerifier.verify(request.idToken(), request.nonce())
+                : facebookAccessTokenVerifier.verify(request.accessToken());
+        User user = socialUserService.resolveOrCreate(identity.email(), SocialProvider.FACEBOOK);
+        logger.info("Mobile session established via Facebook: userId={}", user.userId());
         return tokenResponse(user.userId(), user.email());
     }
 

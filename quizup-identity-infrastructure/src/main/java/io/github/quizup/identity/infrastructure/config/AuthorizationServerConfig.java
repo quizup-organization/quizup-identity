@@ -3,6 +3,7 @@ package io.github.quizup.identity.infrastructure.config;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import io.github.quizup.identity.infrastructure.properties.AppProperties;
+import io.github.quizup.identity.infrastructure.security.FacebookOAuth2UserService;
 import io.github.quizup.identity.infrastructure.security.OAuth2UserServiceImpl;
 import io.github.quizup.identity.infrastructure.security.PublicClientRefreshTokenAuthenticationConverter;
 import io.github.quizup.identity.infrastructure.security.PublicClientRefreshTokenAuthenticationProvider;
@@ -37,6 +38,7 @@ import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
@@ -54,6 +56,7 @@ import java.util.List;
 public class AuthorizationServerConfig {
 
     private final OidcUserService oAuth2UserService;
+    private final FacebookOAuth2UserService facebookOAuth2UserService;
     private final String loginPageUri;
     private final String oauth2SuccessRedirectUri;
     private final String oauth2FailureRedirectUri;
@@ -61,8 +64,10 @@ public class AuthorizationServerConfig {
 
     public AuthorizationServerConfig(
             OAuth2UserServiceImpl oAuth2UserService,
+            FacebookOAuth2UserService facebookOAuth2UserService,
             AppProperties properties) {
         this.oAuth2UserService = oAuth2UserService;
+        this.facebookOAuth2UserService = facebookOAuth2UserService;
         this.loginPageUri = properties.security().loginPageUri();
         this.oauth2SuccessRedirectUri = properties.security().oauth2().successRedirectUri();
         this.oauth2FailureRedirectUri = properties.security().oauth2().failureRedirectUri();
@@ -170,15 +175,26 @@ public class AuthorizationServerConfig {
                         .permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo -> userInfo.oidcUserService(oAuth2UserService))
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .oidcUserService(oAuth2UserService)
+                                .userService(facebookOAuth2UserService))
                         .successHandler(new SimpleUrlAuthenticationSuccessHandler(oauth2SuccessRedirectUri))
                         .failureHandler((request, response, exception) -> {
-                            String target = oauth2FailureRedirectUri;
-                            if (exception instanceof OAuth2AuthenticationException oauth2Exception
-                                    && "account_suspended".equals(
-                                    oauth2Exception.getError().getErrorCode())) {
-                                target += (target.contains("?") ? "&" : "?") + "error=account_suspended";
+                            String errorCode = "oauth2";
+                            if (exception instanceof OAuth2AuthenticationException oauth2Exception) {
+                                String providerError = oauth2Exception.getError().getErrorCode();
+                                if ("account_suspended".equals(providerError)) {
+                                    errorCode = "account_suspended";
+                                } else if (FacebookOAuth2UserService.EMAIL_MISSING_ERROR_CODE
+                                        .equals(providerError)) {
+                                    errorCode = "facebook_email_missing";
+                                }
                             }
+                            String target = UriComponentsBuilder
+                                    .fromUriString(oauth2FailureRedirectUri)
+                                    .replaceQueryParam("error", errorCode)
+                                    .build()
+                                    .toUriString();
                             response.sendRedirect(target);
                         }));
 

@@ -2,6 +2,7 @@ package io.github.quizup.identity.infrastructure.in.web;
 
 import io.github.quizup.identity.domain.exception.UserProblems;
 import io.github.quizup.identity.domain.exception.UserReportProblems;
+import io.github.quizup.identity.infrastructure.security.FacebookAuthProblems;
 import io.github.quizup.identity.infrastructure.security.GoogleAuthProblems;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -97,6 +98,42 @@ public class AuthExceptionHandler {
         );
         problem.setType(URI.create("urn:quizup:auth:googleUnavailable"));
         problem.setTitle("Google indisponible");
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(problem);
+    }
+
+    @ExceptionHandler(FacebookAuthProblems.InvalidFacebookTokenProblem.class)
+    public ResponseEntity<ProblemDetail> handleInvalidFacebookToken(
+            FacebookAuthProblems.InvalidFacebookTokenProblem exception) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNAUTHORIZED,
+                "Le jeton Facebook est invalide ou expiré. Réessaie."
+        );
+        problem.setType(URI.create("urn:quizup:auth:invalidFacebookToken"));
+        problem.setTitle("Connexion Facebook refusée");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(problem);
+    }
+
+    @ExceptionHandler(FacebookAuthProblems.FacebookEmailMissingProblem.class)
+    public ResponseEntity<ProblemDetail> handleFacebookEmailMissing(
+            FacebookAuthProblems.FacebookEmailMissingProblem exception) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNPROCESSABLE_ENTITY,
+                "Facebook n'a pas transmis d'email. Utilise la connexion par email."
+        );
+        problem.setType(URI.create("urn:quizup:auth:facebookEmailMissing"));
+        problem.setTitle("Email Facebook manquant");
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(problem);
+    }
+
+    @ExceptionHandler(FacebookAuthProblems.FacebookUnavailableProblem.class)
+    public ResponseEntity<ProblemDetail> handleFacebookUnavailable(
+            FacebookAuthProblems.FacebookUnavailableProblem exception) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Le service Facebook est temporairement indisponible. Réessaie ou utilise la connexion par email."
+        );
+        problem.setType(URI.create("urn:quizup:auth:facebookUnavailable"));
+        problem.setTitle("Facebook indisponible");
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(problem);
     }
 }

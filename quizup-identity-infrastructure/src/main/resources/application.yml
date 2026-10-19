@@ -12,7 +12,7 @@ spring:
 
   security:
     oauth2:
-      # Client sortant Google (social login).
+      # Clients sortants de login social.
       client:
         registration:
           google:
@@ -22,6 +22,23 @@ spring:
               - openid
               - profile
               - email
+          # Facebook Login « classique » (OAuth2 + Graph API, pas OIDC).
+          # La version Graph est alignée sur la version courante de l'API Meta.
+          facebook:
+            # App ID public (Meta) : un défaut évite d'empêcher le démarrage local.
+            client-id: ${QUIZUP_OAUTH2_FACEBOOK_CLIENT_ID:2122240041993058}
+            client-secret: ${QUIZUP_OAUTH2_FACEBOOK_SECRET:}
+            client-authentication-method: client_secret_post
+            authorization-grant-type: authorization_code
+            scope:
+              - public_profile
+              - email
+        provider:
+          facebook:
+            authorization-uri: https://www.facebook.com/v26.0/dialog/oauth
+            token-uri: https://graph.facebook.com/v26.0/oauth/access_token
+            user-info-uri: "https://graph.facebook.com/v26.0/me?fields=id,name,email,picture"
+            user-name-attribute: id
       # Clients entrants du serveur d'autorisation (standard Spring Boot).
       # Les redirect URIs sont définies par profil (application-local/-prod.yml).
       authorizationserver:
@@ -122,6 +139,9 @@ app:
       client-id: ${QUIZUP_MOBILE_CLIENT_ID:mobile}
       # Client OAuth2 « Web » Google : audience des ID tokens émis par le SDK natif.
       google-client-id: ${QUIZUP_OAUTH2_GOOGLE_CLIENT_ID:270229696016-9u3916ckfcludqv77uiebgir65j3eurk.apps.googleusercontent.com}
+      # App ID Facebook : audience des ID tokens Limited Login (iOS) et des
+      # access tokens vérifiés côté serveur (Android).
+      facebook-app-id: ${QUIZUP_OAUTH2_FACEBOOK_CLIENT_ID:2122240041993058}
   # Seed par défaut : compte système (identity), profil système (profile), sujets starters (theme).
   seed-data:
     enabled: true

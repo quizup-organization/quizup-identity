@@ -32,9 +32,14 @@ public class UserPrincipal implements UserDetails, OAuth2User, QuizUpPrincipal, 
     private final Collection<? extends GrantedAuthority> authorities;
 
     public UserPrincipal(String userId, String email, Collection<? extends GrantedAuthority> authorities) {
+        this(userId, email, Map.of(), authorities);
+    }
+
+    public UserPrincipal(String userId, String email, Map<String, Object> attributes,
+                         Collection<? extends GrantedAuthority> authorities) {
         this.userId = userId;
         this.email = email;
-        this.attributes = Map.of();
+        this.attributes = attributes != null ? attributes : Map.of();
         this.authorities = authorities != null ? authorities : java.util.List.of();
     }
 

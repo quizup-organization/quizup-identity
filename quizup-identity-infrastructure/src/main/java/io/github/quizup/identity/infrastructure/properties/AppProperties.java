@@ -71,7 +71,8 @@ public record AppProperties(
          */
         public record Mobile(
                 @DefaultValue("mobile") String clientId,
-                @DefaultValue("") String googleClientId) {
+                @DefaultValue("") String googleClientId,
+                @DefaultValue("") String facebookAppId) {
         }
     }
 
