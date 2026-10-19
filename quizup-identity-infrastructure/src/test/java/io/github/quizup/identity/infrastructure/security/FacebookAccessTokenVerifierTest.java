@@ -25,7 +25,7 @@ class FacebookAccessTokenVerifierTest {
 
     @BeforeEach
     void setUp() {
-        RestClient.Builder builder = RestClient.builder();
+        RestClient.Builder builder = FacebookAccessTokenVerifier.graphRestClientBuilder();
         server = MockRestServiceServer.bindTo(builder).build();
         verifier = new FacebookAccessTokenVerifier(APP_ID, APP_SECRET, builder.build());
     }
@@ -94,6 +94,18 @@ class FacebookAccessTokenVerifierTest {
 
         assertThatThrownBy(() -> verifier.verify(ACCESS_TOKEN))
                 .isInstanceOf(FacebookAuthProblems.FacebookEmailMissingProblem.class);
+    }
+
+    @Test
+    void mapsGraphJavaScriptErrorToInvalidToken() {
+        server.expect(requestTo(org.hamcrest.Matchers.startsWith(
+                        "https://graph.facebook.com/v26.0/debug_token")))
+                .andRespond(withSuccess("""
+                        {"error":{"message":"Invalid OAuth access token"}}
+                        """, MediaType.parseMediaType("text/javascript;charset=UTF-8")));
+
+        assertThatThrownBy(() -> verifier.verify(ACCESS_TOKEN))
+                .isInstanceOf(FacebookAuthProblems.InvalidFacebookTokenProblem.class);
     }
 
     @Test

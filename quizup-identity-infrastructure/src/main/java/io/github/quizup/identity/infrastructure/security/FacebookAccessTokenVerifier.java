@@ -5,6 +5,8 @@ import io.github.quizup.identity.infrastructure.properties.AppProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.stereotype.Component;
@@ -19,6 +21,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -48,8 +51,25 @@ public class FacebookAccessTokenVerifier {
         this(
                 properties.auth().mobile().facebookAppId(),
                 appSecret(clientRegistrationRepository),
-                RestClient.create()
+                graphRestClientBuilder().build()
         );
+    }
+
+    /**
+     * Client Graph : Facebook renvoie parfois ses erreurs en {@code text/javascript}
+     * (notamment {@code /debug_token} pour un token invalide), pas seulement en
+     * {@code application/json}. Sans ce converter, RestClient échoue à désérialiser et
+     * l'erreur remonte en 503 au lieu de 401.
+     */
+    static RestClient.Builder graphRestClientBuilder() {
+        MappingJackson2HttpMessageConverter json = new MappingJackson2HttpMessageConverter();
+        json.setSupportedMediaTypes(List.of(
+                MediaType.APPLICATION_JSON,
+                MediaType.parseMediaType("application/javascript"),
+                MediaType.parseMediaType("text/javascript")
+        ));
+        return RestClient.builder()
+                .messageConverters(converters -> converters.add(0, json));
     }
 
     FacebookAccessTokenVerifier(String appId, String appSecret, RestClient restClient) {
