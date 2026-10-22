@@ -1,3 +1,9 @@
+## [2.12.0](https://github.com/quizup-organization/quizup-identity/compare/v2.11.0...v2.12.0) (2026-10-22)
+
+### Features
+
+* **identity:** expose UserAccountDeletedEvent dans le contrat identity ([bdd6420](https://github.com/quizup-organization/quizup-identity/commit/bdd6420c34c7d2ba24bc94a0224aeda604ba016b))
+
 ## [2.11.0](https://github.com/quizup-organization/quizup-identity/compare/v2.10.1...v2.11.0) (2026-10-22)
 
 ### Features
