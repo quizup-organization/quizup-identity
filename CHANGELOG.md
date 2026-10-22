@@ -1,3 +1,9 @@
+## [2.11.0](https://github.com/quizup-organization/quizup-identity/compare/v2.10.1...v2.11.0) (2026-10-22)
+
+### Features
+
+* **account:** suppression définitive du compte avec OTP et effacement des données ([7844f6c](https://github.com/quizup-organization/quizup-identity/commit/7844f6c6d3df38bb42e4f25fd60494965a91c654))
+
 ## [2.10.1](https://github.com/quizup-organization/quizup-identity/compare/v2.10.0...v2.10.1) (2026-10-19)
 
 ### Bug Fixes
