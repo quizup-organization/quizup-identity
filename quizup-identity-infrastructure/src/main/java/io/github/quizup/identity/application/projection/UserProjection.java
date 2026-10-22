@@ -8,7 +8,7 @@ import io.github.quizup.identity.domain.model.SocialProvider;
 import io.github.quizup.identity.domain.model.User;
 import io.github.quizup.identity.domain.model.UserSuspension;
 import io.github.quizup.identity.domain.port.out.UserRepositoryPort;
-import io.github.quizup.microservice.core.domain.event.UserAccountDeletedEvent;
+import io.github.quizup.identity.domain.event.UserEvent.UserAccountDeletedEvent;
 import org.axonframework.config.ProcessingGroup;
 import org.axonframework.eventhandling.EventHandler;
 import org.slf4j.Logger;

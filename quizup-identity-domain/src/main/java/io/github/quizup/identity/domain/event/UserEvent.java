@@ -63,6 +63,17 @@ public interface UserEvent {
     }
 
     /**
+     * Événement transverse émis lors de la suppression définitive d'un compte. Il ne porte
+     * aucune donnée personnelle : uniquement l'identifiant technique et la clé d'audit.
+     */
+    record UserAccountDeletedEvent(
+            String userId,
+            String deletionId,
+            Instant deletedAt
+    ) implements UserEvent {
+    }
+
+    /**
      * Événement émis lorsqu'un compte est réintégré (manuellement ou par expiration).
      */
     record UserReinstatedEvent(

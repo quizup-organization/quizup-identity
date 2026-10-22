@@ -9,7 +9,7 @@ import io.github.quizup.identity.domain.model.UserSuspensionReason;
 import io.github.quizup.axon.autoconfigure.erasure.AxonEventStoreErasureService;
 import io.github.quizup.identity.application.service.AccountDeletionCleanupService;
 import io.github.quizup.identity.domain.port.out.UserRepositoryPort;
-import io.github.quizup.microservice.core.domain.event.UserAccountDeletedEvent;
+import io.github.quizup.identity.domain.event.UserEvent.UserAccountDeletedEvent;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 

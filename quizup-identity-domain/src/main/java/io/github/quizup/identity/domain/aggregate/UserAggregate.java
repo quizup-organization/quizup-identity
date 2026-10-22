@@ -11,7 +11,7 @@ import io.github.quizup.identity.domain.model.UserReportRules;
 import io.github.quizup.identity.domain.model.UserSuspension;
 import io.github.quizup.identity.domain.port.out.EmailClaimPort;
 import io.github.quizup.microservice.core.domain.constant.QuizUpConstants;
-import io.github.quizup.microservice.core.domain.event.UserAccountDeletedEvent;
+import io.github.quizup.identity.domain.event.UserEvent.UserAccountDeletedEvent;
 import lombok.Getter;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
