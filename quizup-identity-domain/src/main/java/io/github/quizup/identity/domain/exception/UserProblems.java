@@ -24,6 +24,14 @@ public interface UserProblems {
         }
     }
 
+    class InvalidAccountDeletionCodeProblem extends UserProblem {
+        public InvalidAccountDeletionCodeProblem(String email) {
+            super("UNKNOWN", "urn:quizup:account:invalidDeletionCode", "Invalid deletion code",
+                    "The account deletion code is invalid, expired or already used",
+                    Map.of("email", email));
+        }
+    }
+
     class InvalidEmailFormatProblem extends UserProblem {
         public InvalidEmailFormatProblem(String userId, String email) {
             super(userId, "urn:quizup:user:invalidEmailFormat", "Invalid email format",

@@ -14,4 +14,8 @@ public record UserAccountStatus(
     public boolean suspended(Instant now) {
         return AccountStatusRules.isSuspended(status, suspendedUntil, now);
     }
+
+    public boolean deleted() {
+        return status == AccountStatus.DELETED;
+    }
 }

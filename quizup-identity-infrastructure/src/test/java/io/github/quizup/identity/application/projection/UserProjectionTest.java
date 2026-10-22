@@ -6,7 +6,10 @@ import io.github.quizup.identity.domain.model.SuspensionReinstatementReason;
 import io.github.quizup.identity.domain.model.User;
 import io.github.quizup.identity.domain.model.UserSuspension;
 import io.github.quizup.identity.domain.model.UserSuspensionReason;
+import io.github.quizup.axon.autoconfigure.erasure.AxonEventStoreErasureService;
+import io.github.quizup.identity.application.service.AccountDeletionCleanupService;
 import io.github.quizup.identity.domain.port.out.UserRepositoryPort;
+import io.github.quizup.microservice.core.domain.event.UserAccountDeletedEvent;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -25,7 +28,10 @@ class UserProjectionTest {
     private static final Instant AT = Instant.parse("2026-10-03T18:02:00Z");
 
     private final UserRepositoryPort repository = mock(UserRepositoryPort.class);
-    private final UserProjection projection = new UserProjection(repository);
+    private final AccountDeletionCleanupService deletionCleanupService = mock(AccountDeletionCleanupService.class);
+    private final AxonEventStoreErasureService eventStoreErasureService = mock(AxonEventStoreErasureService.class);
+    private final UserProjection projection = new UserProjection(
+            repository, deletionCleanupService, eventStoreErasureService);
 
     @Test
     void suspension_updatesStatusAndMetadata() {
@@ -40,6 +46,22 @@ class UserProjectionTest {
         assertThat(saved.suspension().suspensionId()).isEqualTo("s1");
         assertThat(saved.suspension().reason()).isEqualTo(UserSuspensionReason.HARASSMENT);
         assertThat(saved.suspension().permanent()).isTrue();
+    }
+
+    @Test
+    void accountDeletion_anonymizesAccountAndPurgesEventStore() {
+        when(repository.findById("user-1")).thenReturn(Optional.of(activeUser()));
+
+        projection.on(new UserAccountDeletedEvent(
+                "user-1", "deletion-1", AT.plusSeconds(120)));
+
+        User saved = captureSaved();
+        assertThat(saved.status()).isEqualTo(AccountStatus.DELETED);
+        assertThat(saved.email()).isEqualTo("deleted-user-1@invalid.local");
+        assertThat(saved.linkedSocialAccounts()).isEmpty();
+        verify(deletionCleanupService).cleanup(
+                "user-1", "user@quizup.dev", "deletion-1", AT.plusSeconds(120));
+        verify(eventStoreErasureService).eraseAggregates(java.util.List.of("user-1"));
     }
 
     @Test

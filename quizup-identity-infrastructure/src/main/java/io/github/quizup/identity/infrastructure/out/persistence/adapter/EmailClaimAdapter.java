@@ -36,6 +36,18 @@ public class EmailClaimAdapter implements EmailClaimPort {
         }
     }
 
+    @Override
+    public void release(String email, String userId) {
+        String normalized = normalize(email);
+        if (normalized == null) {
+            return;
+        }
+        repository.findById(normalized)
+                .filter(claim -> claim.getUserId().equals(userId))
+                .ifPresent(repository::delete);
+        repository.flush();
+    }
+
     private String normalize(String email) {
         if (email == null) {
             return null;

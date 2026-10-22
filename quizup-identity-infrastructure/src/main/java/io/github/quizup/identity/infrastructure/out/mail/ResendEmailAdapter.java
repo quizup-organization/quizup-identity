@@ -69,6 +69,32 @@ public class ResendEmailAdapter implements EmailSenderPort {
     }
 
     @Override
+    public void sendAccountDeletionCode(String email, String code, Duration ttl) {
+        if (!StringUtils.hasText(apiKey)) {
+            logger.warn("Mail API key not configured - account deletion code for {} is: {}", email, code);
+            return;
+        }
+
+        long minutes = Math.max(1, ttl.toMinutes());
+        Map<String, Object> body = Map.of(
+                "from", from,
+                "to", List.of(email),
+                "subject", "Confirmation de suppression de ton compte QuizUp",
+                "html", renderDeletionCodeHtml(code, minutes)
+        );
+
+        restClient.post()
+                .uri(baseUrl + "/emails")
+                .header("Authorization", "Bearer " + apiKey)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
+                .retrieve()
+                .toBodilessEntity();
+
+        logger.info("Account deletion code sent to {}", email);
+    }
+
+    @Override
     public void sendAccountSuspended(String email, UserSuspensionReason reason, Instant suspendedUntil) {
         String reasonLabel = reasonLabel(reason);
         String untilLabel = suspendedUntil == null
@@ -111,6 +137,18 @@ public class ResendEmailAdapter implements EmailSenderPort {
                   <p style="font-size:32px;font-weight:bold;letter-spacing:6px">%s</p>
                   <p>Ce code expire dans %d minutes. Si vous n'êtes pas à l'origine de cette
                   demande, ignorez cet email.</p>
+                </div>
+                """.formatted(code, minutes);
+    }
+
+    private String renderDeletionCodeHtml(String code, long minutes) {
+        return """
+                <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto">
+                  <h2>Suppression de ton compte QuizUp</h2>
+                  <p>Voici ton code de confirmation :</p>
+                  <p style="font-size:32px;font-weight:bold;letter-spacing:6px">%s</p>
+                  <p>Ce code expire dans %d minutes. Si tu n'as pas demandé cette suppression,
+                  ignore cet email : ton compte reste actif.</p>
                 </div>
                 """.formatted(code, minutes);
     }

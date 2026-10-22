@@ -32,7 +32,7 @@ public class UserEntity {
     @Searchable(type = FieldType.STRING)
     private String userId;
 
-    @Column(name = "email", length = 255, nullable = false, unique = true)
+    @Column(name = "email", length = 255, nullable = false)
     @Searchable(type = FieldType.STRING)
     private String email;
 

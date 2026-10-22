@@ -17,6 +17,9 @@ public interface AccountStatusRules {
     }
 
     static AccountStatus effectiveStatus(AccountStatus status, Instant suspendedUntil, Instant now) {
+        if (status == AccountStatus.DELETED) {
+            return AccountStatus.DELETED;
+        }
         return isSuspended(status, suspendedUntil, now) ? AccountStatus.SUSPENDED : AccountStatus.ACTIVE;
     }
 }

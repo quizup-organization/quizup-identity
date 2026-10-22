@@ -21,14 +21,23 @@ import java.util.Optional;
 public interface UserJpaRepository extends JpaRepository<UserEntity, String>, JpaSpecificationExecutor<UserEntity> {
 
     /**
-     * Trouve un profil par email
+     * Trouve un profil actif par email. Un ancien compte DELETED peut conserver son email
+     * quelques instants pendant la propagation : il ne doit jamais masquer le nouveau compte.
      */
-    Optional<UserEntity> findByEmail(String email);
+    default Optional<UserEntity> findByEmail(String email) {
+        return findByEmailIgnoreCaseAndStatusNot(email, AccountStatus.DELETED);
+    }
+
+    Optional<UserEntity> findByEmailIgnoreCaseAndStatusNot(String email, AccountStatus status);
 
     /**
-     * Vérifie si un email existe déjà
+     * Vérifie si un email appartient à un compte non supprimé.
      */
-    boolean existsByEmail(String email);
+    default boolean existsByEmail(String email) {
+        return existsByEmailIgnoreCaseAndStatusNot(email, AccountStatus.DELETED);
+    }
+
+    boolean existsByEmailIgnoreCaseAndStatusNot(String email, AccountStatus status);
 
     List<UserEntity> findAllByUserIdIn(Collection<String> userIds);
 

@@ -8,5 +8,6 @@ package io.github.quizup.identity.domain.model;
  */
 public enum AccountStatus {
     ACTIVE,
-    SUSPENDED
+    SUSPENDED,
+    DELETED
 }

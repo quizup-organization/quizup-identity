@@ -43,6 +43,18 @@ public interface UserCommand {
     }
 
     /**
+     * Supprime définitivement le compte : l'identité est purgée (email libéré, providers
+     * détachés), le statut passe à {@code DELETED} et un événement transverse est publié pour
+     * que chaque service supprime ou anonymise ses projections.
+     */
+    record DeleteAccountCommand(
+            @TargetAggregateIdentifier String userId,
+            String deletionId,
+            Instant deletedAt
+    ) implements UserCommand {
+    }
+
+    /**
      * Suspend un compte. {@code suspendedUntil} nul = suspension définitive.
      *
      * <p>La décision (motif, durée, acteur) est préparée par l'appelant : l'agrégat ne fait

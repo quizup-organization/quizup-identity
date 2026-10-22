@@ -15,4 +15,7 @@ public interface EmailClaimPort {
      * @return {@code true} si la réservation a réussi (email libre), {@code false} s'il est déjà pris.
      */
     boolean claim(String email, String userId);
+
+    /** Libère la réservation si elle appartient encore à ce compte (idempotent). */
+    void release(String email, String userId);
 }

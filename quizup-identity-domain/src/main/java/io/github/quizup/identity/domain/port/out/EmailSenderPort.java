@@ -19,6 +19,9 @@ public interface EmailSenderPort {
      */
     void sendLoginCode(String email, String code, Duration ttl);
 
+    /** Code de confirmation pour la suppression définitive du compte. */
+    void sendAccountDeletionCode(String email, String code, Duration ttl);
+
     /**
      * Informe un joueur de la suspension de son compte.
      *

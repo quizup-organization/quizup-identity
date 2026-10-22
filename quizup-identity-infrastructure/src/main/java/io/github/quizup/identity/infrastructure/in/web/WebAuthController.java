@@ -1,5 +1,6 @@
 package io.github.quizup.identity.infrastructure.in.web;
 
+import io.github.quizup.identity.application.service.AccountDeletionCodeService;
 import io.github.quizup.identity.domain.port.in.PasswordlessAuthUseCase;
 import io.github.quizup.identity.infrastructure.security.AuthorizationRevocationService;
 import io.github.quizup.identity.infrastructure.security.WebSessionService;
@@ -38,13 +39,16 @@ public class WebAuthController {
     private final PasswordlessAuthUseCase passwordlessAuthUseCase;
     private final WebSessionService webSessionService;
     private final AuthorizationRevocationService authorizationRevocationService;
+    private final AccountDeletionCodeService accountDeletionCodeService;
 
     public WebAuthController(PasswordlessAuthUseCase passwordlessAuthUseCase,
                              WebSessionService webSessionService,
-                             AuthorizationRevocationService authorizationRevocationService) {
+                             AuthorizationRevocationService authorizationRevocationService,
+                             AccountDeletionCodeService accountDeletionCodeService) {
         this.passwordlessAuthUseCase = passwordlessAuthUseCase;
         this.webSessionService = webSessionService;
         this.authorizationRevocationService = authorizationRevocationService;
+        this.accountDeletionCodeService = accountDeletionCodeService;
     }
 
     /**
@@ -54,6 +58,28 @@ public class WebAuthController {
     public ResponseEntity<Void> requestLoginCode(@Valid @RequestBody LoginCodeRequest request) {
         passwordlessAuthUseCase.requestCode(request.email());
         return ResponseEntity.accepted().build();
+    }
+
+    /**
+     * Demande un code de confirmation de suppression de compte. Réponse toujours 202
+     * (anti-énumération) ; un code n'est envoyé que pour un compte actif.
+     */
+    @PostMapping("/request-account-deletion-code")
+    public ResponseEntity<Void> requestAccountDeletionCode(
+            @Valid @RequestBody LoginCodeRequest request) {
+        accountDeletionCodeService.requestCode(request.email());
+        return ResponseEntity.accepted().build();
+    }
+
+    /**
+     * Vérifie le code de suppression sans ouvrir de session. Le BFF enchaîne ensuite la
+     * commande de suppression.
+     */
+    @PostMapping("/verify-account-deletion-code")
+    public ResponseEntity<Void> verifyAccountDeletionCode(
+            @Valid @RequestBody LoginWithCodeRequest request) {
+        accountDeletionCodeService.verifyCode(request.email(), request.code());
+        return ResponseEntity.noContent().build();
     }
 
     /**

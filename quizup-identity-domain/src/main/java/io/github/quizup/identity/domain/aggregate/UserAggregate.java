@@ -11,6 +11,7 @@ import io.github.quizup.identity.domain.model.UserReportRules;
 import io.github.quizup.identity.domain.model.UserSuspension;
 import io.github.quizup.identity.domain.port.out.EmailClaimPort;
 import io.github.quizup.microservice.core.domain.constant.QuizUpConstants;
+import io.github.quizup.microservice.core.domain.event.UserAccountDeletedEvent;
 import lombok.Getter;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
@@ -108,6 +109,24 @@ public class UserAggregate {
     }
 
     @CommandHandler
+    public void handle(UserCommand.DeleteAccountCommand command,
+                       EmailClaimPort emailClaimPort) {
+        if (QuizUpConstants.SYSTEM_USER_ID.equals(userId)) {
+            throw new UserReportProblems.SystemAccountNotSuspendableProblem(userId);
+        }
+        if (status == AccountStatus.DELETED) {
+            return;
+        }
+        if (email != null) {
+            emailClaimPort.release(email, userId);
+        }
+        AggregateLifecycle.apply(new UserAccountDeletedEvent(
+                userId,
+                command.deletionId(),
+                command.deletedAt()));
+    }
+
+    @CommandHandler
     public void handle(UserCommand.SuspendUserCommand command) {
         if (QuizUpConstants.SYSTEM_USER_ID.equals(userId)) {
             throw new UserReportProblems.SystemAccountNotSuspendableProblem(userId);
@@ -198,6 +217,15 @@ public class UserAggregate {
                 null,
                 null,
                 null);
+    }
+
+    @EventSourcingHandler
+    public void on(UserAccountDeletedEvent event) {
+        this.status = AccountStatus.DELETED;
+        this.email = "deleted-" + userId + "@invalid.local";
+        this.linkedSocialAccounts = new HashSet<>();
+        this.suspension = null;
+        this.lastLoginAt = null;
     }
 
     @EventSourcingHandler

@@ -34,6 +34,18 @@ public class AuthExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(problem);
     }
 
+    @ExceptionHandler(UserProblems.InvalidAccountDeletionCodeProblem.class)
+    public ResponseEntity<ProblemDetail> handleInvalidAccountDeletionCode(
+            UserProblems.InvalidAccountDeletionCodeProblem exception) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                "Le code de suppression est invalide, expiré ou déjà utilisé."
+        );
+        problem.setType(URI.create(exception.getType()));
+        problem.setTitle("Code de suppression invalide");
+        return ResponseEntity.badRequest().body(problem);
+    }
+
     @ExceptionHandler(UserReportProblems.AccountSuspendedProblem.class)
     public ResponseEntity<ProblemDetail> handleAccountSuspended(UserReportProblems.AccountSuspendedProblem exception) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(

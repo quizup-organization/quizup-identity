@@ -43,11 +43,19 @@ public class AccountAccessRevocationService {
             return;
         }
 
+        revokeAll(userId);
+    }
+
+    /** Révocation inconditionnelle (suppression de compte notamment). */
+    @Transactional
+    public void revokeAll(String userId) {
         int sessions = jdbcTemplate.update(
                 "DELETE FROM spring_session WHERE principal_name = ?", userId);
         int authorizations = jdbcTemplate.update(
                 "DELETE FROM oauth2_authorization WHERE principal_name = ?", userId);
-        logger.info("Access revoked for suspended user {}: {} session(s), {} authorization(s)",
-                userId, sessions, authorizations);
+        int consents = jdbcTemplate.update(
+                "DELETE FROM oauth2_authorization_consent WHERE principal_name = ?", userId);
+        logger.info("Access revoked for user {}: {} session(s), {} authorization(s), {} consent(s)",
+                userId, sessions, authorizations, consents);
     }
 }

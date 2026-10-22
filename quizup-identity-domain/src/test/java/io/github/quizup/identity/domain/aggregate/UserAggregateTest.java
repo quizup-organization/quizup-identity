@@ -9,6 +9,7 @@ import io.github.quizup.identity.domain.model.SuspensionReinstatementReason;
 import io.github.quizup.identity.domain.model.UserSuspensionReason;
 import io.github.quizup.identity.domain.port.out.EmailClaimPort;
 import io.github.quizup.microservice.core.domain.constant.QuizUpConstants;
+import io.github.quizup.microservice.core.domain.event.UserAccountDeletedEvent;
 import org.axonframework.modelling.command.AggregateNotFoundException;
 import org.axonframework.test.aggregate.AggregateTestFixture;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import java.time.Instant;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -125,6 +127,26 @@ class UserAggregateTest {
         fixture.givenNoPriorActivity()
                 .when(new UserCommand.RecordUserLoginCommand("unknown-user"))
                 .expectException(AggregateNotFoundException.class);
+    }
+
+    @Test
+    void deleteAccount_releasesEmailAndEmitsTransverseEvent() {
+        EmailClaimPort port = claimPort(true);
+        fixture.registerInjectableResource(port)
+                .given(new UserEvent.UserRegisteredEvent(
+                        "user-9", "delete@quizup.dev", null,
+                        Instant.parse("2026-01-01T00:00:00Z")))
+                .when(new UserCommand.DeleteAccountCommand(
+                        "user-9", "deletion-1", Instant.parse("2026-10-22T10:00:00Z")))
+                .expectEventsMatching(QuizUpAxonMatchers.singlePayloadMatching(
+                        UserAccountDeletedEvent.class,
+                        e -> {
+                            UserAccountDeletedEvent event = (UserAccountDeletedEvent) e;
+                            return event.userId().equals("user-9")
+                                    && event.deletionId().equals("deletion-1")
+                                    && event.deletedAt().equals(Instant.parse("2026-10-22T10:00:00Z"));
+                        }));
+        verify(port).release("delete@quizup.dev", "user-9");
     }
 
     @Test
